@@ -5,7 +5,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCli =
+  process.platform === 'win32'
+    ? path.join(
+        path.dirname(process.execPath),
+        'node_modules',
+        'npm',
+        'bin',
+        'npm-cli.js'
+      )
+    : null;
 const work = await mkdtemp(path.join(os.tmpdir(), 'stackline-deepmerge-install-'));
 
 try {
@@ -30,8 +39,7 @@ try {
 
 async function createTarball(directory) {
   await mkdir(directory, { recursive: true });
-  const output = run(
-    npm,
+  const output = runNpm(
     ['pack', '--ignore-scripts', '--json', '--pack-destination', directory],
     root
   );
@@ -73,7 +81,7 @@ assert.deepStrictEqual(all([{ esm: true }, { installed: true }]), { esm: true, i
   run(process.execPath, ['smoke.cjs'], directory);
   run(process.execPath, ['smoke.mjs'], directory);
   if (!process.env.SKIP_INSTALL_AUDIT) {
-    run(npm, ['audit', '--omit=dev', '--audit-level=high'], directory);
+    runNpm(['audit', '--omit=dev', '--audit-level=high'], directory);
   }
 }
 
@@ -113,7 +121,13 @@ async function prepare(directory, dependencies) {
     `${JSON.stringify({ private: true, dependencies }, null, 2)}\n`,
     'utf8'
   );
-  run(npm, ['install', '--ignore-scripts', '--no-fund'], directory);
+  runNpm(['install', '--ignore-scripts', '--no-fund'], directory);
+}
+
+function runNpm(args, cwd) {
+  return npmCli
+    ? run(process.execPath, [npmCli, ...args], cwd)
+    : run('npm', args, cwd);
 }
 
 function run(command, args, cwd) {
