@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible behavior or compatibility problem
+title: "[Bug]: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: Do not disclose security vulnerabilities here. Use the private security advisory form.
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: module
+    attributes:
+      label: Consumer format
+      options: [ESM, CommonJS, TypeScript, Browser global, Bundler, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include the target, source, options, actual result, and expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Runtime, operating system, package manager, and TypeScript or bundler version.
+    validations:
+      required: true

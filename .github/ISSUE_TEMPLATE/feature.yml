@@ -1,0 +1,25 @@
+name: Feature request
+description: Propose a focused extension to the merge contract
+title: "[Feature]: "
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Problem to solve
+      description: Describe the real application need before proposing an API.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Desired behavior
+      description: Include compatibility and security expectations.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: true

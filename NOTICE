@@ -1,0 +1,14 @@
+@stackline/deepmerge
+Copyright (c) 2026 Alexandro Paixao Marques and contributors
+
+This package is an independent implementation. Its public behavior is designed
+to support migration from deepmerge version 4, a separate MIT-licensed project
+by James Halliday, Josh Duff, and other contributors:
+
+https://github.com/TehShrike/deepmerge
+
+The upstream package is used as a development-only behavioral reference in the
+differential compatibility tests. It is not included as a runtime dependency.
+
+The name "deepmerge" is used descriptively for API compatibility. This project
+is not affiliated with or endorsed by the upstream maintainers.

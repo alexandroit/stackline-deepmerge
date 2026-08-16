@@ -1,0 +1,63 @@
+# @stackline/deepmerge full reference
+
+Package: @stackline/deepmerge
+License: MIT
+Runtime dependencies: 0
+Node.js: 14.17+
+TypeScript tested: 3.9, 4.7, 4.9, 5.9, 6.0, 7.0
+
+## Installation
+
+npm install @stackline/deepmerge
+
+To preserve existing imports:
+
+npm install deepmerge@npm:@stackline/deepmerge
+
+## ESM
+
+import merge from '@stackline/deepmerge';
+const result = merge(target, source, options);
+
+Named exports: deepmerge, all, isMergeableObject, UnsafeKeyError,
+DeepMergeLimitError.
+
+## CommonJS
+
+const merge = require('@stackline/deepmerge');
+const result = merge(target, source, options);
+
+Static helpers are available as merge.all, merge.isMergeableObject,
+merge.UnsafeKeyError, and merge.DeepMergeLimitError.
+
+## Options
+
+- arrayMerge(targetArray, sourceArray, options): customize arrays.
+- clone: true by default; false preserves nested references.
+- customMerge(key, options): select a property-specific merge callback.
+- isMergeableObject(value): select traversable values.
+- onUnsafeKey: "skip" by default or "throw".
+- maxDepth: 1000 by default.
+- maxKeys: 100000 by default.
+
+## Security
+
+The keys __proto__, prototype, and constructor are filtered in source and
+target objects before values are read. Accepted keys are written as own data
+properties. Own enumerable string and symbol keys are processed; inherited and
+non-enumerable keys are not copied. Options callbacks are trusted executable
+code and must not come from untrusted input.
+
+## Compatibility
+
+The default behavior targets documented deepmerge 4.3.1 semantics. The suite
+includes 5,000 deterministic differential cases. Intentional differences are
+unsafe-key handling, cycle preservation, traversal limits, early option
+validation, and modern package exports.
+
+## Canonical links
+
+Documentation: https://alexandro.net/docs/vanilla/deepmerge/
+npm: https://www.npmjs.com/package/@stackline/deepmerge
+Repository: https://github.com/alexandroit/stackline-deepmerge
+Security: https://github.com/alexandroit/stackline-deepmerge/security/policy

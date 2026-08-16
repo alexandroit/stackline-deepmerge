@@ -1,0 +1,99 @@
+{
+  "name": "@stackline/deepmerge",
+  "version": "1.0.0",
+  "description": "Secure, immutable, zero-dependency deep merge with a deepmerge-compatible API for ESM, CommonJS, TypeScript, and browsers",
+  "keywords": [
+    "deepmerge",
+    "deep-merge",
+    "merge",
+    "object",
+    "config",
+    "immutable",
+    "prototype-pollution",
+    "security",
+    "typescript",
+    "esm",
+    "commonjs",
+    "browser",
+    "zero-dependency"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Alexandro Paixao Marques",
+    "url": "https://github.com/alexandroit"
+  },
+  "homepage": "https://alexandro.net/docs/vanilla/deepmerge/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexandroit/stackline-deepmerge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alexandroit/stackline-deepmerge/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.min.js",
+  "jsdelivr": "./dist/index.min.js",
+  "exports": {
+    ".": {
+      "browser": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.js"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=14.17.0"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "NOTICE",
+    "README.md",
+    "SECURITY.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build": "node scripts/build.mjs",
+    "lint": "eslint . && node scripts/check-markdown.mjs",
+    "test": "npm run build && npm run lint && npm run test:coverage && npm run test:types && npm run test:package && npm run test:install && npm run test:docs",
+    "test:unit": "node --test --test-reporter=spec test/*.test.mjs",
+    "test:coverage": "c8 --all --src src --check-coverage --lines 100 --functions 100 --statements 100 --branches 95 node --test test/core.test.mjs test/cycles-limits.test.mjs test/security.test.mjs test/compatibility.test.mjs",
+    "test:types": "node scripts/test-types.mjs",
+    "test:package": "node --test test/package.test.mjs && node scripts/check-dist.mjs && publint",
+    "test:install": "node scripts/smoke-install.mjs",
+    "test:docs": "npm run docs:build && node scripts/check-docs.mjs",
+    "test:attw": "attw --pack .",
+    "audit:dependencies": "npm audit --audit-level=low && npm audit signatures",
+    "benchmark": "npm run build && node benchmark/benchmark.mjs",
+    "docs:build": "npm run build && node scripts/build-docs.mjs",
+    "docs:serve": "node scripts/serve-docs.mjs",
+    "prepack": "npm run clean && npm run build && npm run lint && npm run test:coverage && npm run test:types && npm run test:package"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "c8": "12.0.0",
+    "deepmerge": "4.3.1",
+    "esbuild": "0.28.2",
+    "eslint": "10.8.1",
+    "publint": "0.3.23",
+    "typescript": "7.0.2"
+  }
+}

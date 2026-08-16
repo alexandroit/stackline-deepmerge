@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@stackline/deepmerge - Secure deep merge for JavaScript</title>
+    <meta name="description" content="Secure, immutable, zero-dependency deep merge with a deepmerge-compatible API for ESM, CommonJS, TypeScript, and browsers.">
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+    <link rel="canonical" href="https://alexandro.net/docs/vanilla/deepmerge/">
+    <link rel="alternate" type="text/plain" href="./llms.txt" title="LLM summary">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="@stackline/deepmerge">
+    <meta property="og:description" content="Secure deep merge without migration friction or runtime dependencies.">
+    <meta property="og:url" content="https://alexandro.net/docs/vanilla/deepmerge/">
+    <meta property="og:image" content="https://alexandro.net/docs/vanilla/deepmerge/assets/deepmerge-structure.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#137a53">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareSourceCode",
+        "name": "@stackline/deepmerge",
+        "description": "Secure, immutable, zero-dependency deep merge for JavaScript.",
+        "codeRepository": "https://github.com/alexandroit/stackline-deepmerge",
+        "downloadUrl": "https://www.npmjs.com/package/@stackline/deepmerge",
+        "license": "https://opensource.org/license/mit",
+        "programmingLanguage": ["JavaScript", "TypeScript"],
+        "runtimePlatform": ["Node.js", "Web browser", "Deno", "Bun"],
+        "author": {
+          "@type": "Person",
+          "name": "Alexandro Paixao Marques",
+          "url": "https://github.com/alexandroit"
+        }
+      }
+    </script>
+    <script defer src="./index.min.js"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#playground">Skip to playground</a>
+
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="@stackline/deepmerge documentation home">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>@stackline/deepmerge</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#api">API</a>
+        <a href="https://github.com/alexandroit/stackline-deepmerge">GitHub</a>
+        <a href="https://www.npmjs.com/package/@stackline/deepmerge">npm</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-content">
+          <p class="eyebrow">Secure merge. Familiar contract.</p>
+          <h1 id="page-title">@stackline/deepmerge</h1>
+          <p class="hero-copy">
+            Immutable deep merge with prototype-pollution defenses, cycles,
+            resource limits, accurate types, and zero runtime dependencies.
+          </p>
+          <div class="install-row">
+            <code>npm install @stackline/deepmerge</code>
+            <button class="compact-button" type="button" data-copy="npm install @stackline/deepmerge">Copy</button>
+          </div>
+          <p class="release-line">
+            <span id="package-version">v1.0.0</span>
+            <span>Node 14.17+</span>
+            <span>TypeScript 3.9-7.0</span>
+          </p>
+        </div>
+      </section>
+
+      <section class="playground-band" id="playground" aria-labelledby="playground-title">
+        <div class="section-inner wide">
+          <div class="section-heading tool-heading">
+            <div>
+              <p class="eyebrow">Runs the production bundle</p>
+              <h2 id="playground-title">Merge playground</h2>
+            </div>
+            <div class="tool-actions" aria-label="Playground actions">
+              <button class="icon-button" id="swap-button" type="button" title="Swap inputs" aria-label="Swap target and source"><span aria-hidden="true">&#8644;</span></button>
+              <button class="icon-button" id="reset-button" type="button" title="Reset playground" aria-label="Reset playground"><span aria-hidden="true">&#8635;</span></button>
+              <button class="secondary-button" id="share-button" type="button">Copy link</button>
+            </div>
+          </div>
+
+          <div class="control-bar">
+            <label>
+              <span>Preset</span>
+              <select id="preset-select">
+                <option value="configuration">Nested configuration</option>
+                <option value="security">Prototype pollution payload</option>
+                <option value="arrays">Array strategies</option>
+                <option value="mismatch">Type mismatch</option>
+              </select>
+            </label>
+
+            <fieldset class="segmented-control">
+              <legend>Unsafe keys</legend>
+              <button type="button" data-mode="skip" aria-pressed="true">Skip</button>
+              <button type="button" data-mode="throw" aria-pressed="false">Throw</button>
+            </fieldset>
+
+            <label class="number-control">
+              <span>Max depth</span>
+              <input id="max-depth" type="number" min="0" step="1" value="1000" inputmode="numeric">
+            </label>
+
+            <label class="number-control">
+              <span>Max keys</span>
+              <input id="max-keys" type="number" min="0" step="1" value="100000" inputmode="numeric">
+            </label>
+
+            <button class="primary-button" id="merge-button" type="button">Merge</button>
+          </div>
+
+          <div class="editor-grid">
+            <section class="editor-panel" aria-labelledby="target-label">
+              <header>
+                <h3 id="target-label">Target</h3>
+                <span>JSON</span>
+              </header>
+              <textarea id="target-input" spellcheck="false" aria-label="Target JSON"></textarea>
+            </section>
+
+            <section class="editor-panel" aria-labelledby="source-label">
+              <header>
+                <h3 id="source-label">Source</h3>
+                <span>JSON</span>
+              </header>
+              <textarea id="source-input" spellcheck="false" aria-label="Source JSON"></textarea>
+            </section>
+
+            <section class="editor-panel output-panel" aria-labelledby="result-label">
+              <header>
+                <h3 id="result-label">Result</h3>
+                <button class="text-button" id="copy-result-button" type="button">Copy JSON</button>
+              </header>
+              <pre id="result-output" tabindex="0" aria-live="polite"></pre>
+            </section>
+          </div>
+
+          <div class="status-bar" role="status" aria-live="polite">
+            <span class="status-indicator" id="status-indicator" aria-hidden="true"></span>
+            <span id="status-text">Ready</span>
+            <span class="status-separator" aria-hidden="true"></span>
+            <span id="timing-text">0.000 ms</span>
+            <span class="status-spacer"></span>
+            <span id="prototype-status">Object.prototype unchanged</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band" id="install" aria-labelledby="migration-title">
+        <div class="section-inner content-grid">
+          <div>
+            <p class="eyebrow">Lowest-change adoption</p>
+            <h2 id="migration-title">Keep existing imports</h2>
+            <p>
+              Install through an npm alias and code that imports
+              <code>deepmerge</code> continues to work.
+            </p>
+          </div>
+          <div class="code-surface">
+            <pre><code>npm uninstall deepmerge
+npm install deepmerge@npm:@stackline/deepmerge</code></pre>
+            <pre><code>import merge from 'deepmerge';
+
+const config = merge(defaults, environment);</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band muted" id="api" aria-labelledby="api-title">
+        <div class="section-inner">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Public contract</p>
+              <h2 id="api-title">One small API surface</h2>
+            </div>
+            <a class="inline-link" href="https://github.com/alexandroit/stackline-deepmerge/blob/main/README.md#api-compatibility">Full reference</a>
+          </div>
+          <div class="api-table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Export</th><th>Purpose</th><th>Available in</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>merge(target, source, options?)</code></td><td>Immutable recursive merge</td><td>ESM, CJS, browser</td></tr>
+                <tr><td><code>merge.all(objects, options?)</code></td><td>Merge a list from left to right</td><td>ESM, CJS, browser</td></tr>
+                <tr><td><code>isMergeableObject(value)</code></td><td>Default traversal predicate</td><td>Named and static export</td></tr>
+                <tr><td><code>UnsafeKeyError</code></td><td>Strict unsafe-key rejection</td><td>Named and static export</td></tr>
+                <tr><td><code>DeepMergeLimitError</code></td><td>Depth or key budget exceeded</td><td>Named and static export</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band" aria-labelledby="proof-title">
+        <div class="section-inner proof-grid">
+          <div>
+            <p class="eyebrow">Release evidence</p>
+            <h2 id="proof-title">Compatibility is tested, not implied</h2>
+          </div>
+          <dl class="proof-list">
+            <div><dt>5,000</dt><dd>deterministic differential cases against deepmerge 4.3.1</dd></div>
+            <div><dt>100%</dt><dd>statement, line, and function coverage at release</dd></div>
+            <div><dt>3.9-7.0</dt><dd>TypeScript compatibility matrix</dd></div>
+            <div><dt>0</dt><dd>runtime dependencies</dd></div>
+          </dl>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <strong>@stackline/deepmerge</strong>
+        <span>MIT licensed. Independent and not affiliated with the upstream deepmerge maintainers.</span>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="https://github.com/alexandroit/stackline-deepmerge/blob/main/SECURITY.md">Security</a>
+        <a href="https://github.com/alexandroit/stackline-deepmerge/blob/main/CHANGELOG.md">Changelog</a>
+        <a href="./llms-full.txt">LLM reference</a>
+      </nav>
+    </footer>
+  </body>
+</html>

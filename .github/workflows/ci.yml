@@ -1,0 +1,143 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Tests, coverage, and package quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20.20.0
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:attw
+      - run: npm run audit:dependencies
+
+  types:
+    name: TypeScript ${{ matrix.typescript }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        typescript: [3.9.10, 4.7.4, 4.9.5, 5.9.3, 6.0.3, 7.0.2]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20.20.0
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/test-types.mjs ${{ matrix.typescript }}
+
+  package:
+    name: Reproducible package artifact
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20.20.0
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: mkdir artifact
+      - run: npm pack --ignore-scripts --pack-destination artifact
+      - run: sha512sum artifact/*.tgz | tee artifact/SHA512SUMS
+      - run: npm sbom --omit=dev --sbom-format cyclonedx > artifact/sbom.cdx.json
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: npm-package
+          path: artifact/
+          if-no-files-found: error
+
+  node-runtime:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 14.17.6
+          - os: ubuntu-latest
+            node: 16.20.2
+          - os: ubuntu-latest
+            node: 18.20.8
+          - os: ubuntu-latest
+            node: 20.20.0
+          - os: ubuntu-latest
+            node: 22
+          - os: ubuntu-latest
+            node: 24
+          - os: windows-latest
+            node: 20.20.0
+          - os: macos-latest
+            node: 20.20.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: npm-package
+          path: artifact
+      - run: node scripts/smoke-install.mjs artifact/stackline-deepmerge-1.0.0.tgz
+        env:
+          SKIP_INSTALL_AUDIT: '1'
+
+  deno:
+    name: Deno 2
+    runs-on: ubuntu-latest
+    needs: package
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: npm-package
+          path: artifact
+      - run: tar -xzf artifact/stackline-deepmerge-1.0.0.tgz
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+      - run: >-
+          deno eval "import merge from './package/dist/index.js';
+          const result = merge({deno:{left:true}}, {deno:{right:true}});
+          if (!result.deno.left || !result.deno.right) throw new Error('Deno merge failed');"
+
+  bun:
+    name: Bun
+    runs-on: ubuntu-latest
+    needs: package
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: npm-package
+          path: artifact
+      - run: tar -xzf artifact/stackline-deepmerge-1.0.0.tgz
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - run: >-
+          bun -e "import merge from './package/dist/index.js';
+          const result = merge({bun:{left:true}}, {bun:{right:true}});
+          if (!result.bun.left || !result.bun.right) throw new Error('Bun merge failed');"

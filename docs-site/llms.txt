@@ -1,0 +1,29 @@
+# @stackline/deepmerge
+
+Secure, immutable, zero-dependency deep merge for JavaScript with a
+deepmerge-compatible API.
+
+## Canonical resources
+
+- Documentation: https://alexandro.net/docs/vanilla/deepmerge/
+- npm: https://www.npmjs.com/package/@stackline/deepmerge
+- Source: https://github.com/alexandroit/stackline-deepmerge
+- README: https://github.com/alexandroit/stackline-deepmerge/blob/main/README.md
+- Security: https://github.com/alexandroit/stackline-deepmerge/blob/main/SECURITY.md
+- Full LLM reference: https://alexandro.net/docs/vanilla/deepmerge/llms-full.txt
+
+## Install
+
+Direct: npm install @stackline/deepmerge
+
+Drop-in alias: npm install deepmerge@npm:@stackline/deepmerge
+
+## Core contract
+
+- Default arrays concatenate.
+- Inputs are not mutated.
+- __proto__, prototype, and constructor are skipped by default at every depth.
+- onUnsafeKey: "throw" rejects unsafe input.
+- Cycles and shared references are preserved.
+- maxDepth and maxKeys bound traversal.
+- ESM, callable CommonJS, browser global, and TypeScript are supported.
