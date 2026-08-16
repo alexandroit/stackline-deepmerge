@@ -18,7 +18,7 @@
 - Keep TypeScript 3.9 compatibility throughout the 1.x line unless a future
   major explicitly changes the contract.
 
-## 2026-08-15 to 2026-08-16 - Project creation and 1.0.0 release preparation
+## 2026-08-15 to 2026-08-16 - Project creation and 1.0.0 release
 
 Market decision:
 
@@ -73,9 +73,36 @@ Validation completed before the first commit:
 
 Release status:
 
-- Package name was unclaimed on public npm when checked.
-- Repository name was unclaimed under `alexandroit` when checked.
-- Verdaccio and public npm publisher credentials were confirmed without
-  exposing credentials in the repository.
-- Publication and final post-publication validation are still pending at this
-  memory checkpoint.
+- Public npm package:
+  `https://www.npmjs.com/package/@stackline/deepmerge`.
+- Public GitHub repository:
+  `https://github.com/alexandroit/stackline-deepmerge`.
+- Public documentation:
+  `https://alexandro.net/docs/vanilla/deepmerge/`.
+- Version `1.0.0` is the `latest` tag in Verdaccio and public npm.
+- The same CI-produced tarball was published to both registries. npm SHA-1:
+  `192fd05ea69417fda7223c3f2b9bed83b3b96d0a`. SHA-512:
+  `ccef38a8e1b3f36688a6dd448691bc850aefe8a9e74e902ed90b5ec918f94863b09b53c4b90cdb31d50b21018f805cacf22076a9da5a0839649f9114ea81e35e`.
+- The tarball downloaded from public npm is byte-identical to the retained
+  release artifact. Its registry integrity is
+  `sha512-zO84qOGz82aIpt1EhpG8hQrv6KnnTpAu2QteyRj5SGOwm1PEuQzbMdULIQGPgFys8iB2qdpaCDlkn5EU6oHjXg==`.
+- Direct and aliased installs from both registries passed in CommonJS and ESM.
+  Public npm also reported zero production vulnerabilities and one verified
+  registry signature.
+- The retained release directory contains the tarball, `SHA512SUMS`, and a
+  CycloneDX 1.5 SBOM.
+- GitHub Actions run `31926166384` passed Linux, macOS, Windows, Node.js
+  14.17 through 24, TypeScript 3.9 through 7.0, Deno, Bun, package, audit,
+  artifact, checksum, and SBOM jobs. CodeQL run `31926166222` passed.
+- A final `npm pack --dry-run` exposed inherited npm dry-run configuration
+  in nested package smoke tests. Child npm processes now clear that inherited
+  flag, and CI runs the exact dry-run command as a release regression check.
+  The corrected source still produces the exact published tarball hashes.
+- Production documentation returned HTTP 200 for HTML, JavaScript, CSS,
+  image, package metadata, sitemap, robots, and LLM reference files.
+  Chromium validated desktop and 390 px mobile rendering with no console
+  errors or horizontal overflow. The production playground filtered a
+  prototype-pollution payload in skip mode and returned `UnsafeKeyError` in
+  strict mode without changing `Object.prototype`.
+- Release tag: `v1.0.0`. GitHub release assets are the exact published
+  tarball, its SHA-512 checksum file, and the CycloneDX SBOM.

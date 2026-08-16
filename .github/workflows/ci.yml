@@ -28,6 +28,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run test:attw
+      - run: npm pack --dry-run
       - run: npm run audit:dependencies
 
   types:

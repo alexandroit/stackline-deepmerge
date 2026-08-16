@@ -84,10 +84,14 @@ try {
 }
 
 function run(command, args, cwd) {
+  const env = { ...process.env, npm_config_loglevel: 'error' };
+  delete env.npm_config_dry_run;
+  delete env.NPM_CONFIG_DRY_RUN;
+
   return execFileSync(command, args, {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, npm_config_loglevel: 'error' },
+    env,
     stdio: ['ignore', 'pipe', 'pipe']
   });
 }
