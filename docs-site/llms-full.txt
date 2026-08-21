@@ -5,6 +5,8 @@ License: MIT
 Runtime dependencies: 0
 Node.js: 14.17+
 TypeScript tested: 3.9, 4.7, 4.9, 5.9, 6.0, 7.0
+Portfolio catalog: https://alexandro.net/docs/open-source/
+Security guide: https://alexandro.net/docs/open-source/guides/deepmerge-security/
 
 ## Installation
 

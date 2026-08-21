@@ -14,6 +14,19 @@ await cp(
   new URL('dist/index.min.js.map', root),
   new URL('index.min.js.map', output)
 );
+await mkdir(new URL('guides/', output), { recursive: true });
+await cp(new URL('docs/ADOPTION.md', root), new URL('guides/adoption.md', output));
+await cp(new URL('docs/BENCHMARKS.md', root), new URL('guides/benchmarks.md', output));
+await cp(new URL('examples/', root), new URL('examples/', output), { recursive: true });
+for (const file of ['index.html', 'llms-full.txt', 'sitemap.xml']) {
+  const fileUrl = new URL(file, output);
+  const template = await readFile(fileUrl, 'utf8');
+  await writeFile(
+    fileUrl,
+    template.split('{{PACKAGE_VERSION}}').join(packageJson.version),
+    'utf8'
+  );
+}
 await writeFile(
   new URL('package-meta.json', output),
   `${JSON.stringify(

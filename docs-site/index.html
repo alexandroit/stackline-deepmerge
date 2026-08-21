@@ -16,6 +16,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="theme-color" content="#137a53">
     <link rel="stylesheet" href="./styles.css">
+    <script defer src="./analytics.js"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -46,6 +47,7 @@
         <span>@stackline/deepmerge</span>
       </a>
       <nav aria-label="Primary navigation">
+        <a href="https://alexandro.net/docs/open-source/">Open source</a>
         <a href="#api">API</a>
         <a href="https://github.com/alexandroit/stackline-deepmerge">GitHub</a>
         <a href="https://www.npmjs.com/package/@stackline/deepmerge">npm</a>
@@ -66,7 +68,7 @@
             <button class="compact-button" type="button" data-copy="npm install @stackline/deepmerge">Copy</button>
           </div>
           <p class="release-line">
-            <span id="package-version">v1.0.0</span>
+            <span id="package-version">v{{PACKAGE_VERSION}}</span>
             <span>Node 14.17+</span>
             <span>TypeScript 3.9-7.0</span>
           </p>
@@ -222,6 +224,9 @@ const config = merge(defaults, environment);</code></pre>
         <span>MIT licensed. Independent and not affiliated with the upstream deepmerge maintainers.</span>
       </div>
       <nav aria-label="Footer navigation">
+        <a href="https://alexandro.net/docs/open-source/">All packages</a>
+        <a href="./guides/adoption.md">Adoption</a>
+        <a href="./guides/benchmarks.md">Benchmarks</a>
         <a href="https://github.com/alexandroit/stackline-deepmerge/blob/main/SECURITY.md">Security</a>
         <a href="https://github.com/alexandroit/stackline-deepmerge/blob/main/CHANGELOG.md">Changelog</a>
         <a href="./llms-full.txt">LLM reference</a>

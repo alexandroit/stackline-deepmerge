@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,7 +19,7 @@ const work = await mkdtemp(path.join(os.tmpdir(), 'stackline-deepmerge-install-'
 
 try {
   const tarball = process.argv[2]
-    ? path.resolve(process.argv[2])
+    ? await resolveTarball(process.argv[2])
     : await createTarball(path.join(work, 'artifact'));
 
   await smokeDirect(tarball, path.join(work, 'direct'));
@@ -35,6 +35,17 @@ try {
   if (!process.env.KEEP_INSTALL_TEST) {
     await rm(work, { force: true, recursive: true });
   }
+}
+
+async function resolveTarball(input) {
+  const resolved = path.resolve(input);
+  const info = await stat(resolved);
+  if (info.isFile()) return resolved;
+  const tarballs = (await readdir(resolved)).filter((entry) => entry.endsWith('.tgz'));
+  if (tarballs.length !== 1) {
+    throw new Error(`Expected one package tarball in ${resolved}; found ${tarballs.length}`);
+  }
+  return path.join(resolved, tarballs[0]);
 }
 
 async function createTarball(directory) {

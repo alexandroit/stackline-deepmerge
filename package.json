@@ -1,6 +1,6 @@
 {
   "name": "@stackline/deepmerge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Secure, immutable, zero-dependency deep merge with a deepmerge-compatible API for ESM, CommonJS, TypeScript, and browsers",
   "keywords": [
     "deepmerge",
@@ -59,6 +59,8 @@
   },
   "files": [
     "dist",
+    "docs",
+    "examples",
     "CHANGELOG.md",
     "CONTRIBUTING.md",
     "LICENSE",
@@ -73,10 +75,11 @@
     "clean": "node scripts/clean.mjs",
     "build": "node scripts/build.mjs",
     "lint": "eslint . && node scripts/check-markdown.mjs",
-    "test": "npm run build && npm run lint && npm run test:coverage && npm run test:types && npm run test:package && npm run test:install && npm run test:docs",
+    "test": "npm run build && npm run lint && npm run test:coverage && npm run test:types && npm run test:examples && npm run test:package && npm run test:install && npm run test:docs",
     "test:unit": "node --test --test-reporter=spec test/*.test.mjs",
     "test:coverage": "c8 --all --src src --check-coverage --lines 100 --functions 100 --statements 100 --branches 95 node --test test/core.test.mjs test/cycles-limits.test.mjs test/security.test.mjs test/compatibility.test.mjs",
     "test:types": "node scripts/test-types.mjs",
+    "test:examples": "node examples/secure-config.mjs && node examples/array-strategy.mjs && node examples/cyclic-graph.mjs",
     "test:package": "node --test test/package.test.mjs && node scripts/check-dist.mjs && publint",
     "test:install": "node scripts/smoke-install.mjs",
     "test:docs": "npm run docs:build && node scripts/check-docs.mjs",

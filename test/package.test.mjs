@@ -43,7 +43,12 @@ test('distribution is small and carries the license banner', async () => {
   const minified = new URL('../dist/index.min.js', import.meta.url);
   const code = await readFile(minified, 'utf8');
   const info = await stat(minified);
-  assert.match(code, /^\/\*! @stackline\/deepmerge v1\.0\.0 \| MIT \*\//);
+  const packageJson = JSON.parse(
+    await readFile(new URL('../package.json', import.meta.url), 'utf8')
+  );
+  assert.ok(
+    code.startsWith(`/*! @stackline/deepmerge v${packageJson.version} | MIT */`)
+  );
   assert.equal(code.includes('eval('), false);
   assert.equal(code.includes('new Function'), false);
   assert.ok(info.size < 10000, `browser bundle is ${info.size} bytes`);

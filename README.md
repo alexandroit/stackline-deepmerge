@@ -246,7 +246,7 @@ The release matrix tests TypeScript `3.9`, `4.7`, `4.9`, `5.9`, `6.0`, and
 Use the ESM build with a bundler, or load the small browser global directly:
 
 ```html
-<script src="https://unpkg.com/@stackline/deepmerge@1.0.0/dist/index.min.js"></script>
+<script src="https://unpkg.com/@stackline/deepmerge@1/dist/index.min.js"></script>
 <script>
   const merged = StacklineDeepmerge(
     { theme: { contrast: 'normal' } },
@@ -288,6 +288,17 @@ npm run benchmark
 
 Use benchmark results as regression signals, not universal claims. Runtime,
 CPU, input shape, and custom callbacks materially affect throughput.
+
+## Adoption resources
+
+- [Direct install and drop-in alias guide](docs/ADOPTION.md)
+- [Reproducible benchmark methodology](docs/BENCHMARKS.md)
+- [Executable examples](examples)
+- [Stackline open-source catalog](https://alexandro.net/docs/open-source/)
+
+The examples are included in the npm tarball and run against the package's
+public exports. They cover hostile configuration input, custom array strategy,
+cycles, and shared references.
 
 ## Trust and maintenance
 

@@ -6,6 +6,8 @@ deepmerge-compatible API.
 ## Canonical resources
 
 - Documentation: https://alexandro.net/docs/vanilla/deepmerge/
+- Portfolio catalog: https://alexandro.net/docs/open-source/
+- Security guide: https://alexandro.net/docs/open-source/guides/deepmerge-security/
 - npm: https://www.npmjs.com/package/@stackline/deepmerge
 - Source: https://github.com/alexandroit/stackline-deepmerge
 - README: https://github.com/alexandroit/stackline-deepmerge/blob/main/README.md
