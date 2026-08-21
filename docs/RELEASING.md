@@ -27,7 +27,7 @@ bytes are identical.
 version="$(node -p "require('./package.json').version")"
 mkdir -p "release/$version"
 npm pack --ignore-scripts --pack-destination "release/$version"
-sha512sum "release/$version"/*.tgz > "release/$version/SHA512SUMS"
+(cd "release/$version" && sha512sum *.tgz > SHA512SUMS)
 ```
 
 Do not rebuild between registries. After each publish, install from that
