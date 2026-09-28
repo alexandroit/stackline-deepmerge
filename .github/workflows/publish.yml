@@ -37,6 +37,7 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run test:attw
+      - run: npm run audit:dependencies
 
       - name: Reject an existing public version and unexpected registry errors
         shell: bash
