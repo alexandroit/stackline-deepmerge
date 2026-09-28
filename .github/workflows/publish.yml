@@ -27,23 +27,32 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 24
+          node-version: 24.20.0
           package-manager-cache: false
           registry-url: https://registry.npmjs.org
       - name: Require the default branch
         run: test "$GITHUB_REF" = "refs/heads/main"
+      - name: Pin the publishing npm CLI
+        run: npm install --global npm@11.19.0
       - run: npm ci
       - run: npm test
       - run: npm run test:attw
-      - name: Reject an existing public version
+
+      - name: Reject an existing public version and unexpected registry errors
         shell: bash
         run: |
-          package="$(node -p "require('./package.json').name")"
-          version="$(node -p "require('./package.json').version")"
-          if npm view "$package@$version" version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
-            echo "$package@$version already exists" >&2
-            exit 1
-          fi
+          node <<'NODE'
+          const { spawnSync } = require('node:child_process');
+          const { name, version } = require('./package.json');
+          const result = spawnSync('npm', ['view', `${name}@${version}`, 'version', '--json', '--registry=https://registry.npmjs.org'], { encoding: 'utf8' });
+          if (result.status === 0) throw new Error(`${name}@${version} already exists`);
+          let response;
+          try { response = JSON.parse(result.stdout); } catch { throw new Error('Registry absence check did not return npm JSON'); }
+          if (result.error || result.signal || response.error?.code !== 'E404') {
+            process.stderr.write(result.stderr || 'Unexpected npm registry error');
+            process.exit(1);
+          }
+          NODE
       - name: Build immutable package artifact
         shell: bash
         env:
@@ -64,11 +73,10 @@ jobs:
           (cd artifact && sha512sum *.tgz > SHA512SUMS)
       - name: Prepare npm OIDC client and SBOM
         run: |
-          npm install --global npm@11.19.0
           npm sbom --omit=dev --sbom-format cyclonedx > artifact/sbom.cdx.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: npm-release
           path: artifact/
           if-no-files-found: error
-      - run: npm publish artifact/*.tgz --access public --provenance --registry=https://registry.npmjs.org
+      - run: npm publish artifact/*.tgz --access public --provenance --ignore-scripts --registry=https://registry.npmjs.org
