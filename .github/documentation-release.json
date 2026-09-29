@@ -1,0 +1,35 @@
+{
+  "repository": "alexandroit/stackline-deepmerge",
+  "packages": [
+    {
+      "name": "@stackline/deepmerge",
+      "path": "README.md",
+      "version": "1.0.3",
+      "baselineVersion": "1.0.2",
+      "keywords": [
+        "stackline",
+        "npm-package",
+        "deepmerge",
+        "typescript",
+        "browser",
+        "nodejs",
+        "deep-merge",
+        "merge",
+        "object",
+        "config",
+        "immutable",
+        "prototype-pollution",
+        "security",
+        "esm",
+        "commonjs",
+        "zero-dependency",
+        "object-merge"
+      ],
+      "homepage": "https://alexandro.net/docs/vanilla/deepmerge/",
+      "baselineTarball": "https://registry.npmjs.org/@stackline/deepmerge/-/deepmerge-1.0.2.tgz",
+      "baselineIntegrity": "sha512-pkLWpPaYry262Q58lgExpaI0rBPxeCtAPnKLzDGzDdDvtJsdFUM8yllGrK1gvyTiE0WCogAhAruBhBS+m8K7wA==",
+      "expectedSha512": "7e983b407529dfee78589514e4b0bd7f92c03529292a0d01f59df18de6bf89b7196cf2961ca73facba8fabd076262796193ce07cf36dc8e0d679736a2262a8f0",
+      "tag": "docs-stackline-deepmerge-v1.0.3"
+    }
+  ]
+}
