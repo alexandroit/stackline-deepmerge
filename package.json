@@ -1,6 +1,6 @@
 {
   "name": "@stackline/deepmerge",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Secure, immutable, zero-dependency deep merge with a deepmerge-compatible API for ESM, CommonJS, TypeScript, and browsers",
   "keywords": [
     "stackline",
