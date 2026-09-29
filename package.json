@@ -1,9 +1,14 @@
 {
   "name": "@stackline/deepmerge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Secure, immutable, zero-dependency deep merge with a deepmerge-compatible API for ESM, CommonJS, TypeScript, and browsers",
   "keywords": [
+    "stackline",
+    "npm-package",
     "deepmerge",
+    "typescript",
+    "browser",
+    "nodejs",
     "deep-merge",
     "merge",
     "object",
@@ -11,12 +16,9 @@
     "immutable",
     "prototype-pollution",
     "security",
-    "typescript",
     "esm",
     "commonjs",
-    "browser",
     "zero-dependency",
-    "stackline",
     "object-merge"
   ],
   "license": "MIT",
