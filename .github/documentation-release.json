@@ -4,7 +4,7 @@
     {
       "name": "@stackline/deepmerge",
       "path": "README.md",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "baselineVersion": "1.0.2",
       "keywords": [
         "stackline",
@@ -28,8 +28,8 @@
       "homepage": "https://alexandro.net/docs/vanilla/deepmerge/",
       "baselineTarball": "https://registry.npmjs.org/@stackline/deepmerge/-/deepmerge-1.0.2.tgz",
       "baselineIntegrity": "sha512-pkLWpPaYry262Q58lgExpaI0rBPxeCtAPnKLzDGzDdDvtJsdFUM8yllGrK1gvyTiE0WCogAhAruBhBS+m8K7wA==",
-      "expectedSha512": "7e983b407529dfee78589514e4b0bd7f92c03529292a0d01f59df18de6bf89b7196cf2961ca73facba8fabd076262796193ce07cf36dc8e0d679736a2262a8f0",
-      "tag": "docs-stackline-deepmerge-v1.0.3"
+      "expectedSha512": "c50cdd73783d878e50c3dcf751580d8bcc5b40d30db8a091f4f63392e0654895b227d66d71936dccf5c11bdd988bebeb31063d3d8302c7f107bd624d36561827",
+      "tag": "docs-stackline-deepmerge-v1.0.4"
     }
   ]
 }
