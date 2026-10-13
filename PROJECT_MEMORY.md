@@ -196,6 +196,30 @@ Release status:
   `/storage/data/releases/stackline-deepmerge/1.1.0` contains the tarball,
   `SHA512SUMS`, and the CI CycloneDX SBOM. The GitHub release `v1.1.0` carries
   the same three assets.
-- Package documentation on `https://alexandro.net/docs/vanilla/deepmerge/` and
-  the catalog download snapshot still show 1.0.4 until the next documentation
-  deployment.
+- Package documentation was deployed on 2026-10-13 from commit
+  `dc7c9ed1`, which versions the asset URLs (`?v=1.1.0`) so browsers never
+  combine the new page with cached 1.0 scripts. The production route
+  `/var/www/html/alexandro.net_docs/vanilla/deepmerge/` holds 23 files that
+  match the reviewed staging SHA-256 manifest. The previous route and the docs
+  aggregate sitemap are recoverable at
+  `/var/backups/stackline-docs/20261013T171417Z-deepmerge-1.1.0`.
+- The docs aggregate sitemap went from 3,330 to 3,332 URLs: the two new guide
+  routes were added and the three existing deepmerge routes moved to
+  `lastmod` 2026-10-13, through `stackline-open-source/scripts/upsert-sitemap.php`
+  with only the five deepmerge package entries. Ownership `www-data:www-data
+  644` was preserved. The root sitemap and the catalog guide were not changed.
+- The portfolio documentation overlay (present on 134 package routes) was kept
+  and refreshed for 1.1.0: the "Current package documentation" banner,
+  `readme.html`, `README.md`, `documentation-release.json`, and the publication
+  fields in `package-meta.json`. `readme.html` reuses the production template;
+  its article is the README rendered with `marked` 18.1.1 after removing
+  `language-*` code classes and table `align` attributes, which reproduces the
+  1.0.4 page byte for byte from the 1.0.4 README. Future releases must refresh
+  this overlay rather than drop it.
+- Public HTTPS returned 200 with the expected content types and byte-identical
+  bodies for all 23 files; DNS resolves directly to the origin. Chromium at
+  1,440 and 390 CSS pixels found no console errors, failed requests, or
+  horizontal overflow on the package page or `readme.html`.
+- The catalog guide `https://alexandro.net/guides/deepmerge-security/` and the
+  catalog download snapshot are updated in `stackline-open-source` but not yet
+  deployed.
