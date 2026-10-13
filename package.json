@@ -1,7 +1,7 @@
 {
   "name": "@stackline/deepmerge",
-  "version": "1.0.4",
-  "description": "Secure, immutable, zero-dependency deep merge with a deepmerge-compatible API for ESM, CommonJS, TypeScript, and browsers",
+  "version": "1.1.0",
+  "description": "Drop-in replacement for deepmerge 4 with CVE-2026-93753 fixed, cycle support, opt-in hardening, Map and Set merging, and array strategies. Zero dependencies; ESM, CommonJS, TypeScript, and browsers",
   "keywords": [
     "stackline",
     "npm-package",
@@ -19,7 +19,12 @@
     "esm",
     "commonjs",
     "zero-dependency",
-    "object-merge"
+    "object-merge",
+    "drop-in",
+    "cve-2026-93753",
+    "circular",
+    "map",
+    "set"
   ],
   "license": "MIT",
   "author": {
@@ -81,13 +86,14 @@
     "lint": "eslint . && node scripts/check-markdown.mjs",
     "test": "npm run build && npm run lint && npm run test:coverage && npm run test:types && npm run test:examples && npm run test:package && npm run test:install && npm run test:docs",
     "test:unit": "node --test --test-reporter=spec test/*.test.mjs",
-    "test:coverage": "c8 --all --src src --check-coverage --lines 100 --functions 100 --statements 100 --branches 95 node --test test/core.test.mjs test/cycles-limits.test.mjs test/security.test.mjs test/compatibility.test.mjs",
+    "test:coverage": "c8 --all --src src --check-coverage --lines 100 --functions 100 --statements 100 --branches 95 node --test test/core.test.mjs test/cycles-limits.test.mjs test/security.test.mjs test/compatibility.test.mjs test/features.test.mjs",
     "test:types": "node scripts/test-types.mjs",
-    "test:examples": "node examples/secure-config.mjs && node examples/array-strategy.mjs && node examples/cyclic-graph.mjs",
+    "test:examples": "node examples/secure-config.mjs && node examples/array-strategy.mjs && node examples/cyclic-graph.mjs && node examples/configured-merge.mjs",
     "test:package": "node --test test/package.test.mjs && node scripts/check-dist.mjs && publint",
     "test:install": "node scripts/smoke-install.mjs",
     "test:docs": "npm run docs:build && node scripts/check-docs.mjs",
     "test:attw": "attw --pack .",
+    "test:upstream": "npm run build && node scripts/test-upstream.mjs",
     "audit:dependencies": "npm audit --audit-level=low && npm audit signatures",
     "benchmark": "npm run build && node benchmark/benchmark.mjs",
     "docs:build": "npm run build && node scripts/build-docs.mjs",

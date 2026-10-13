@@ -6,9 +6,16 @@ const shared = { enabled: true };
 const source = { first: shared, second: shared };
 source.self = source;
 
+// deepmerge 4.3.1 overflows the stack on this input.
 const result = merge({}, source);
 
-assert.equal(result.first, result.second);
+// Cycles stay cycles in the output.
 assert.equal(result.self, result);
 
-console.log({ cyclePreserved: true, sharedReferencePreserved: true });
+// Repeated references become independent copies, exactly like deepmerge 4.
+assert.deepEqual(result.first, result.second);
+assert.notEqual(result.first, result.second);
+result.first.enabled = false;
+assert.equal(result.second.enabled, true);
+
+console.log({ cyclePreserved: true, repeatedReferencesCopiedIndependently: true });

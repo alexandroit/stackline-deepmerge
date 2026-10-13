@@ -29,13 +29,15 @@ gain benchmark throughput.
 
 ## Compatibility changes
 
-The default API intentionally tracks documented `deepmerge` v4 behavior.
-Before changing merge semantics:
+Without options, results must match `deepmerge@4.3.1` exactly. New behavior
+belongs behind an option or export. Before changing merge semantics:
 
 1. add a focused local test;
-2. add or update a differential compatibility case;
-3. document intentional differences;
-4. validate direct and npm-alias installation shapes.
+2. run the exact differential suite, including a large run such as
+   `DEEPMERGE_DIFF_CASES=15000 DEEPMERGE_DIFF_SEED=1 node --test test/compatibility.test.mjs`;
+3. document any intentional difference in `docs/COMPATIBILITY.md`;
+4. record upstream issues the change addresses in `docs/UPSTREAM.md`;
+5. validate direct and npm-alias installation shapes.
 
 ## Security changes
 

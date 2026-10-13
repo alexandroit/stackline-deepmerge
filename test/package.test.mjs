@@ -51,5 +51,5 @@ test('distribution is small and carries the license banner', async () => {
   );
   assert.equal(code.includes('eval('), false);
   assert.equal(code.includes('new Function'), false);
-  assert.ok(info.size < 10000, `browser bundle is ${info.size} bytes`);
+  assert.ok(info.size < 12000, `browser bundle is ${info.size} bytes`);
 });

@@ -5,8 +5,16 @@ import merge, {
   DeepMergeLimitError,
   UnsafeKeyError,
   all,
+  concatUniqueArrays,
+  createDeepmerge,
   deepmerge,
-  isMergeableObject
+  isMergeableObject,
+  isPlainMergeableObject,
+  mergeArraysByIndex,
+  mergeArraysByKey,
+  overwriteArrays,
+  strict,
+  strictOptions
 } from '../src/index.js';
 
 test('merges nested objects and concatenates arrays without mutation', () => {
@@ -47,6 +55,14 @@ test('exports the compatible default, named function, and all helper', () => {
   assert.equal(merge.all, all);
   assert.equal(merge.deepmerge, merge);
   assert.equal(merge.isMergeableObject, isMergeableObject);
+  assert.equal(merge.isPlainMergeableObject, isPlainMergeableObject);
+  assert.equal(merge.createDeepmerge, createDeepmerge);
+  assert.equal(merge.strict, strict);
+  assert.equal(merge.strictOptions, strictOptions);
+  assert.equal(merge.overwriteArrays, overwriteArrays);
+  assert.equal(merge.mergeArraysByIndex, mergeArraysByIndex);
+  assert.equal(merge.mergeArraysByKey, mergeArraysByKey);
+  assert.equal(merge.concatUniqueArrays, concatUniqueArrays);
   assert.equal(merge.UnsafeKeyError, UnsafeKeyError);
   assert.equal(merge.DeepMergeLimitError, DeepMergeLimitError);
   assert.deepEqual(all([{ one: 1 }, { two: 2 }, { three: 3 }]), {
@@ -216,23 +232,62 @@ test('handles array and object type mismatches like deepmerge v4', () => {
   assert.deepEqual(merge([1, 2], { value: true }), { value: true });
 });
 
-test('rejects invalid option shapes', () => {
-  assert.throws(() => merge({}, {}, null), /options must be an object/);
-  assert.throws(() => merge({}, {}, { arrayMerge: true }), /arrayMerge must be/);
-  assert.throws(() => merge({}, {}, { arrayMerge: false }), /arrayMerge must be/);
-  assert.throws(
-    () => merge({}, {}, { isMergeableObject: true }),
-    /isMergeableObject must be/
-  );
-  assert.throws(
-    () => merge({}, {}, { isMergeableObject: 0 }),
-    /isMergeableObject must be/
-  );
-  assert.throws(() => merge({}, {}, { customMerge: true }), /customMerge must be/);
+test('validates Stackline options and keeps deepmerge hooks as lenient as v4', () => {
+  assert.throws(() => merge({}, {}, 'invalid'), /options must be an object/);
   assert.throws(() => merge({}, {}, { maxDepth: -1 }), /maxDepth must be/);
   assert.throws(() => merge({}, {}, { maxKeys: 1.2 }), /maxKeys must be/);
   assert.throws(() => merge({}, {}, { onUnsafeKey: 'allow' }), /onUnsafeKey must be/);
   assert.throws(() => merge({}, {}, { onUnsafeKey: '' }), /onUnsafeKey must be/);
+  assert.throws(() => merge({}, {}, { unsafeKeys: 'none' }), /unsafeKeys must be/);
+  assert.throws(
+    () => merge({}, {}, { customMergeScope: 'leaves' }),
+    /customMergeScope must be/
+  );
+  assert.deepEqual(
+    merge({ a: 1 }, { b: 2 }, { maxDepth: null, maxKeys: undefined, onUnsafeKey: null }),
+    { a: 1, b: 2 }
+  );
+
+  assert.deepEqual(merge({ a: [1] }, { a: [2] }, { arrayMerge: false }), { a: [1, 2] });
+  assert.deepEqual(merge({ a: 1 }, { b: 2 }, { arrayMerge: true }), { a: 1, b: 2 });
+  assert.throws(() => merge({ a: [1] }, { a: [2] }, { arrayMerge: true }), TypeError);
+  assert.throws(() => merge({}, {}, { isMergeableObject: true }), TypeError);
+  assert.throws(
+    () => merge({ a: { left: 1 } }, { a: { right: 1 } }, { customMerge: true }),
+    TypeError
+  );
+});
+
+test('reads inherited, non-enumerable, accessor, and frozen options without mutating them', () => {
+  const overwrite = (_target, source) => source;
+  const inherited = Object.create({ arrayMerge: overwrite });
+  assert.deepEqual(merge({ a: [1] }, { a: [2] }, inherited), { a: [2] });
+
+  const hidden = {};
+  Object.defineProperty(hidden, 'arrayMerge', { enumerable: false, value: overwrite });
+  assert.deepEqual(merge({ a: [1] }, { a: [2] }, hidden), { a: [2] });
+
+  let reads = 0;
+  const accessor = {
+    get clone() {
+      reads += 1;
+      return false;
+    }
+  };
+  const nested = { value: true };
+  assert.equal(merge({}, { nested }, accessor).nested, nested);
+  assert.ok(reads > 0);
+
+  const frozen = Object.freeze({ clone: true, arrayMerge: null });
+  assert.deepEqual(merge({ a: [1] }, { a: [2] }, frozen), { a: [1, 2] });
+  assert.deepEqual(Object.keys(frozen), ['clone', 'arrayMerge']);
+
+  const plain = { clone: true };
+  merge({}, {}, plain);
+  assert.deepEqual(Object.keys(plain), ['clone']);
+
+  const functionOptions = Object.assign(() => undefined, { arrayMerge: overwrite });
+  assert.deepEqual(merge({ a: [1] }, { a: [2] }, functionOptions), { a: [2] });
 });
 
 function objectTag(value) {

@@ -1,11 +1,14 @@
 # @stackline/deepmerge
 
-Secure, immutable, zero-dependency deep merge for JavaScript with a
-deepmerge-compatible API.
+Drop-in replacement for deepmerge 4. Same results as deepmerge 4.3.1, with
+CVE-2026-93753 fixed, circular references supported, and opt-in hardening,
+Map and Set merging, and array strategies. Zero runtime dependencies.
 
 ## Canonical resources
 
 - Documentation: https://alexandro.net/docs/vanilla/deepmerge/
+- Compatibility contract: https://alexandro.net/docs/vanilla/deepmerge/guides/compatibility.md
+- Upstream issue review: https://alexandro.net/docs/vanilla/deepmerge/guides/upstream.md
 - Portfolio catalog: https://alexandro.net/docs/open-source/
 - Security guide: https://alexandro.net/docs/open-source/guides/deepmerge-security/
 - npm: https://www.npmjs.com/package/@stackline/deepmerge
@@ -16,16 +19,20 @@ deepmerge-compatible API.
 
 ## Install
 
-Direct: npm install @stackline/deepmerge
-
 Drop-in alias: npm install deepmerge@npm:@stackline/deepmerge
+
+Direct: npm install @stackline/deepmerge
 
 ## Core contract
 
-- Default arrays concatenate.
-- Inputs are not mutated.
-- __proto__, prototype, and constructor are skipped by default at every depth.
-- onUnsafeKey: "throw" rejects unsafe input.
-- Cycles and shared references are preserved.
-- maxDepth and maxKeys bound traversal.
+- Without options, results match deepmerge 4.3.1: values, key order,
+  prototypes, descriptors, and independent copies.
+- Arrays concatenate by default; inputs are never mutated.
+- __proto__ is dropped at every depth (CVE-2026-93753).
+- constructor and prototype follow deepmerge 4 unless unsafeKeys is "strict".
+- Cycles are reproduced instead of overflowing the stack.
+- strict(target, source) adds strict keys, throwing, and depth and key limits.
+- Opt-in: createDeepmerge, skipUndefined, mergeCollections, customMergeScope,
+  isPlainMergeableObject, overwriteArrays, mergeArraysByIndex,
+  mergeArraysByKey, concatUniqueArrays.
 - ESM, callable CommonJS, browser global, and TypeScript are supported.

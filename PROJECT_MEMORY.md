@@ -11,7 +11,15 @@
   justifies an exception.
 - Preserve direct imports and the npm alias migration shape:
   `deepmerge@npm:@stackline/deepmerge`.
-- Treat `__proto__`, `prototype`, and `constructor` as unsafe at every depth.
+- Default results must match `deepmerge@4.3.1` for every input that deepmerge 4
+  merges safely. New behavior is opt-in. Defaults change only where deepmerge
+  4 crashes or returns an unsafe result, and each such difference is listed in
+  `docs/COMPATIBILITY.md` with a test.
+- Always drop `__proto__` from targets and sources at every depth
+  (CVE-2026-93753). `constructor` and `prototype` follow deepmerge 4 by
+  default and are dropped by `unsafeKeys: 'strict'` and the `strict` preset.
+- Keep `docs/UPSTREAM.md` current: every upstream issue, pull request, branch,
+  and fork with its status.
 - Do not publish a release until tests, package validation, clean-install
   smoke tests, and GitHub CI pass.
 - Publish the same validated tarball to Verdaccio and public npm.
@@ -106,3 +114,59 @@ Release status:
   strict mode without changing `Object.prototype`.
 - Release tag: `v1.0.0`. GitHub release assets are the exact published
   tarball, its SHA-512 checksum file, and the CycloneDX SBOM.
+
+## 2026-10-13 - 1.1.0 exact compatibility and upstream improvements
+
+Review findings on 1.0.4:
+
+- A repeated input reference could receive another branch's merged result:
+  the clone memo stored merge results under the target and source objects.
+- Keys replaced by the source moved to the end of the result, changing
+  `JSON.stringify` output.
+- Repeated non-cyclic references were shared in the result.
+- `null` options, falsy hooks, more than 100,000 keys, more than 1,000 levels,
+  and `constructor` or `prototype` data diverged from deepmerge 4.
+- ESM declarations did not type `merge.all` on the default export.
+- The old differential test compared with `deepEqual`, so it could not see key
+  order, prototypes, or aliasing.
+
+Decisions:
+
+- Defaults match deepmerge 4.3.1; hardening moved to `unsafeKeys`,
+  `onUnsafeKey`, `maxDepth`, `maxKeys`, and the `strict` preset. Setting
+  `onUnsafeKey` selects the strict key policy so 1.0 configurations keep their
+  behavior.
+- Cycle detection short-circuits only exact repeats of an in-progress merge or
+  clone, so every terminating deepmerge 4 input keeps the same recursion.
+- Released as a minor version: nothing that worked stops working, and the
+  changed outputs are compatibility fixes. The CHANGELOG lists each change.
+- Upstream review covered 143 issues, 137 pull requests, the `v5`,
+  `null-objects`, and `prototype-polution-m342x` branches, and all 227 forks.
+  `deepmerge@4.3.1`, still the latest upstream release, is affected by
+  CVE-2026-93753 (deepmerge#273); 1.0.4 and 1.1.0 are not.
+- Added `createDeepmerge`, `strict`, `isPlainMergeableObject`,
+  `skipUndefined`, `mergeCollections`, `customMergeScope`, the `customMerge`
+  context argument, and the `overwriteArrays`, `mergeArraysByIndex`,
+  `concatUniqueArrays`, and `mergeArraysByKey` strategies.
+- The browser bundle budget rose from 10 KB to 12 KB minified for these
+  features.
+
+Validation:
+
+- The exact differential suite compares complete output graphs (values with
+  `Object.is`, own-key order, descriptors, prototypes, aliasing, input
+  identity, thrown error types, and input immutability) with deepmerge 4.3.1
+  across ten option variants and `merge.all`. 45,000 cases over three seeds
+  (900,000 comparisons) found no difference. The harness was checked against
+  the 1.0.4 source, where it reports the known divergences.
+- deepmerge's own 4.3.1 suite (115 tape assertions) and its README examples
+  pass against the 1.1.0 CommonJS build (`npm run test:upstream`, also in CI).
+- Every published CVE-2026-93753 variant is vulnerable in deepmerge 4.3.1 and
+  safe in 1.0.4 and 1.1.0.
+- Maximum nesting before a stack overflow on Node.js 24.20: deepmerge 4.3.1
+  about 1,450 objects or 1,350 arrays; 1.1.0 about 1,520 objects or 1,850
+  arrays.
+- Benchmark on Node.js 24.20: 1.0.4 measured 86,405 ops/s against 143,443 for
+  deepmerge 4.3.1; 1.1.0 measured about 200,000 against about 150,000.
+- TypeScript 3.9.10, 4.7.4, 4.9.5, 5.9.3, 6.0.3, and 7.0.2 compile consumer
+  code that uses both the upstream declaration patterns and the new API.

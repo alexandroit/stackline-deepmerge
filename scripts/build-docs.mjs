@@ -17,6 +17,8 @@ await cp(
 await mkdir(new URL('guides/', output), { recursive: true });
 await cp(new URL('docs/ADOPTION.md', root), new URL('guides/adoption.md', output));
 await cp(new URL('docs/BENCHMARKS.md', root), new URL('guides/benchmarks.md', output));
+await cp(new URL('docs/COMPATIBILITY.md', root), new URL('guides/compatibility.md', output));
+await cp(new URL('docs/UPSTREAM.md', root), new URL('guides/upstream.md', output));
 await cp(new URL('examples/', root), new URL('examples/', output), { recursive: true });
 for (const file of ['index.html', 'llms-full.txt', 'sitemap.xml']) {
   const fileUrl = new URL(file, output);

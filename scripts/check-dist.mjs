@@ -34,7 +34,7 @@ for (const file of [
 }
 
 const minified = await stat(new URL('../dist/index.min.js', import.meta.url));
-assert.ok(minified.size < 10000, `minified bundle is ${minified.size} bytes`);
+assert.ok(minified.size < 12000, `minified bundle is ${minified.size} bytes`);
 
 console.log(
   JSON.stringify({

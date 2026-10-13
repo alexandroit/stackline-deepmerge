@@ -8,6 +8,10 @@
 - [ ] Track benchmark history across supported Node.js LTS releases.
 - [ ] Evaluate an opt-in descriptor-preserving mode without changing default
   compatibility.
+- [ ] Run the test suites of popular open-source dependents of `deepmerge`
+  with the npm alias before each minor release.
+- [ ] Re-review upstream issues, pull requests, and forks before each minor
+  release and update `docs/UPSTREAM.md`.
 - [ ] Evaluate an opt-in array-item limit for exposed parser boundaries.
 - [ ] Publish a machine-readable compatibility corpus for other merge
   libraries.
@@ -15,6 +19,7 @@
 ## Maintenance rules
 
 - Never trade dangerous-key filtering for benchmark results.
+- Never change a default result that deepmerge 4.3.1 produces safely.
 - Never add a runtime dependency without a documented supply-chain review.
 - Never narrow supported TypeScript versions in a patch release.
 - Keep npm alias migration tested before every release.

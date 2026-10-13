@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@stackline/deepmerge - Secure deep merge for JavaScript</title>
-    <meta name="description" content="Secure, immutable, zero-dependency deep merge with a deepmerge-compatible API for ESM, CommonJS, TypeScript, and browsers.">
+    <title>@stackline/deepmerge - Drop-in deepmerge replacement</title>
+    <meta name="description" content="Drop-in replacement for deepmerge 4 with CVE-2026-93753 fixed, cycle support, opt-in hardening, Map and Set merging, and array strategies. Zero dependencies.">
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
     <link rel="canonical" href="https://alexandro.net/docs/vanilla/deepmerge/">
     <link rel="alternate" type="text/plain" href="./llms.txt" title="LLM summary">
     <meta property="og:type" content="website">
     <meta property="og:title" content="@stackline/deepmerge">
-    <meta property="og:description" content="Secure deep merge without migration friction or runtime dependencies.">
+    <meta property="og:description" content="Swap deepmerge without changing results, and lose CVE-2026-93753.">
     <meta property="og:url" content="https://alexandro.net/docs/vanilla/deepmerge/">
     <meta property="og:image" content="https://alexandro.net/docs/vanilla/deepmerge/assets/deepmerge-structure.jpg">
     <meta name="twitter:card" content="summary_large_image">
@@ -22,12 +22,13 @@
         "@context": "https://schema.org",
         "@type": "SoftwareSourceCode",
         "name": "@stackline/deepmerge",
-        "description": "Secure, immutable, zero-dependency deep merge for JavaScript.",
+        "description": "Drop-in replacement for deepmerge 4 with CVE-2026-93753 fixed, cycle support, and opt-in hardening.",
         "codeRepository": "https://github.com/alexandroit/stackline-deepmerge",
         "downloadUrl": "https://www.npmjs.com/package/@stackline/deepmerge",
         "license": "https://opensource.org/license/mit",
         "programmingLanguage": ["JavaScript", "TypeScript"],
         "runtimePlatform": ["Node.js", "Web browser", "Deno", "Bun"],
+        "softwareVersion": "{{PACKAGE_VERSION}}",
         "author": {
           "@type": "Person",
           "name": "Alexandro Paixao Marques",
@@ -57,20 +58,23 @@
     <main>
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-content">
-          <p class="eyebrow">Secure merge. Familiar contract.</p>
+          <p class="eyebrow">Same results. No CVE.</p>
           <h1 id="page-title">@stackline/deepmerge</h1>
           <p class="hero-copy">
-            Immutable deep merge with prototype-pollution defenses, cycles,
-            resource limits, accurate types, and zero runtime dependencies.
+            A drop-in replacement for deepmerge 4. Swap one dependency, keep
+            every result, and lose CVE-2026-93753 and circular-reference crashes.
+            Hardening, Map and Set merging, and array strategies are one option
+            away.
           </p>
           <div class="install-row">
-            <code>npm install @stackline/deepmerge</code>
-            <button class="compact-button" type="button" data-copy="npm install @stackline/deepmerge">Copy</button>
+            <code>npm install deepmerge@npm:@stackline/deepmerge</code>
+            <button class="compact-button" type="button" data-copy="npm install deepmerge@npm:@stackline/deepmerge">Copy</button>
           </div>
           <p class="release-line">
             <span id="package-version">v{{PACKAGE_VERSION}}</span>
             <span>Node 14.17+</span>
             <span>TypeScript 3.9-7.0</span>
+            <span>0 dependencies</span>
           </p>
         </div>
       </section>
@@ -94,26 +98,43 @@
               <span>Preset</span>
               <select id="preset-select">
                 <option value="configuration">Nested configuration</option>
-                <option value="security">Prototype pollution payload</option>
-                <option value="arrays">Array strategies</option>
+                <option value="security">CVE-2026-93753 payload</option>
+                <option value="arrays">Plugins by name</option>
                 <option value="mismatch">Type mismatch</option>
               </select>
             </label>
 
             <fieldset class="segmented-control">
-              <legend>Unsafe keys</legend>
+              <legend>Key policy</legend>
+              <button type="button" data-policy="compatible" aria-pressed="true">Compatible</button>
+              <button type="button" data-policy="strict" aria-pressed="false">Strict</button>
+            </fieldset>
+
+            <fieldset class="segmented-control">
+              <legend>Rejected keys</legend>
               <button type="button" data-mode="skip" aria-pressed="true">Skip</button>
               <button type="button" data-mode="throw" aria-pressed="false">Throw</button>
             </fieldset>
 
+            <label>
+              <span>Arrays</span>
+              <select id="array-select">
+                <option value="concat">Concatenate (default)</option>
+                <option value="overwrite">overwriteArrays</option>
+                <option value="index">mergeArraysByIndex</option>
+                <option value="name">mergeArraysByKey('name')</option>
+                <option value="unique">concatUniqueArrays</option>
+              </select>
+            </label>
+
             <label class="number-control">
               <span>Max depth</span>
-              <input id="max-depth" type="number" min="0" step="1" value="1000" inputmode="numeric">
+              <input id="max-depth" type="number" min="0" step="1" placeholder="No limit" inputmode="numeric">
             </label>
 
             <label class="number-control">
               <span>Max keys</span>
-              <input id="max-keys" type="number" min="0" step="1" value="100000" inputmode="numeric">
+              <input id="max-keys" type="number" min="0" step="1" placeholder="No limit" inputmode="numeric">
             </label>
 
             <button class="primary-button" id="merge-button" type="button">Merge</button>
@@ -152,6 +173,8 @@
             <span id="timing-text">0.000 ms</span>
             <span class="status-spacer"></span>
             <span id="prototype-status">Object.prototype unchanged</span>
+            <span class="status-separator" aria-hidden="true"></span>
+            <span id="result-prototype-status">Result prototypes clean</span>
           </div>
         </div>
       </section>
@@ -163,7 +186,7 @@
             <h2 id="migration-title">Keep existing imports</h2>
             <p>
               Install through an npm alias and code that imports
-              <code>deepmerge</code> continues to work.
+              <code>deepmerge</code> keeps working, with the same results.
             </p>
           </div>
           <div class="code-surface">
@@ -176,41 +199,77 @@ const config = merge(defaults, environment);</code></pre>
         </div>
       </section>
 
-      <section class="content-band muted" id="api" aria-labelledby="api-title">
+      <section class="content-band muted" id="why" aria-labelledby="why-title">
         <div class="section-inner">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Public contract</p>
-              <h2 id="api-title">One small API surface</h2>
+              <p class="eyebrow">deepmerge 4.3.1 is the latest upstream release</p>
+              <h2 id="why-title">What the swap fixes</h2>
             </div>
-            <a class="inline-link" href="https://github.com/alexandroit/stackline-deepmerge/blob/main/README.md#api-compatibility">Full reference</a>
+            <a class="inline-link" href="./guides/compatibility.md">Compatibility contract</a>
           </div>
           <div class="api-table-wrapper">
             <table>
               <thead>
-                <tr><th>Export</th><th>Purpose</th><th>Available in</th></tr>
+                <tr><th>Input</th><th>deepmerge 4.3.1</th><th>@stackline/deepmerge</th></tr>
               </thead>
               <tbody>
-                <tr><td><code>merge(target, source, options?)</code></td><td>Immutable recursive merge</td><td>ESM, CJS, browser</td></tr>
-                <tr><td><code>merge.all(objects, options?)</code></td><td>Merge a list from left to right</td><td>ESM, CJS, browser</td></tr>
-                <tr><td><code>isMergeableObject(value)</code></td><td>Default traversal predicate</td><td>Named and static export</td></tr>
-                <tr><td><code>UnsafeKeyError</code></td><td>Strict unsafe-key rejection</td><td>Named and static export</td></tr>
-                <tr><td><code>DeepMergeLimitError</code></td><td>Depth or key budget exceeded</td><td>Named and static export</td></tr>
+                <tr><td><code>__proto__</code> merged into a null-prototype object or a <code>null</code> placeholder</td><td>The result inherits attacker data (CVE-2026-93753)</td><td>Key dropped at every depth</td></tr>
+                <tr><td>Circular references</td><td>Stack overflow</td><td>Cycle reproduced in the result</td></tr>
+                <tr><td>Frozen options object</td><td><code>TypeError</code></td><td>Merges normally</td></tr>
+                <tr><td>React 19 elements</td><td>Props of two elements merged together</td><td>Kept intact</td></tr>
+                <tr><td>Everything else</td><td colspan="2">Identical results: values, key order, prototypes, and copies</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <section class="content-band" aria-labelledby="proof-title">
+      <section class="content-band" id="api" aria-labelledby="api-title">
+        <div class="section-inner">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Public contract</p>
+              <h2 id="api-title">deepmerge 4 API, plus opt-in tools</h2>
+            </div>
+            <a class="inline-link" href="https://github.com/alexandroit/stackline-deepmerge/blob/main/README.md#api-compatibility">Full reference</a>
+          </div>
+          <div class="api-table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Export or option</th><th>Purpose</th><th>Default</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><code>merge(target, source, options?)</code></td><td>Immutable recursive merge</td><td>deepmerge 4 results</td></tr>
+                <tr><td><code>merge.all(objects, options?)</code></td><td>Merge a list from left to right</td><td>deepmerge 4 results</td></tr>
+                <tr><td><code>strict(target, source, options?)</code></td><td>Strict keys, throw on rejection, depth and key limits</td><td>Separate export</td></tr>
+                <tr><td><code>createDeepmerge(defaults)</code></td><td>Reusable merge with preset options</td><td>Separate export</td></tr>
+                <tr><td><code>overwriteArrays</code>, <code>mergeArraysByIndex</code>, <code>mergeArraysByKey(key)</code>, <code>concatUniqueArrays</code></td><td>Ready-made <code>arrayMerge</code> strategies</td><td>Concatenate</td></tr>
+                <tr><td><code>isPlainMergeableObject</code></td><td>Keep class instances and built-ins intact</td><td>Traverse every object</td></tr>
+                <tr><td><code>mergeCollections</code></td><td>Merge <code>Map</code> entries and union <code>Set</code> values</td><td><code>false</code></td></tr>
+                <tr><td><code>skipUndefined</code></td><td><code>undefined</code> does not replace target values</td><td><code>false</code></td></tr>
+                <tr><td><code>customMergeScope: 'all'</code></td><td><code>customMerge</code> also handles primitive values</td><td><code>'objects'</code></td></tr>
+                <tr><td><code>unsafeKeys</code>, <code>onUnsafeKey</code>, <code>maxDepth</code>, <code>maxKeys</code></td><td>Hardening for untrusted input</td><td>Drop <code>__proto__</code>, no limits</td></tr>
+                <tr><td><code>UnsafeKeyError</code>, <code>DeepMergeLimitError</code></td><td>Structured rejection errors</td><td>Named and static export</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band muted" aria-labelledby="proof-title">
         <div class="section-inner proof-grid">
           <div>
             <p class="eyebrow">Release evidence</p>
             <h2 id="proof-title">Compatibility is tested, not implied</h2>
+            <p>
+              Every upstream issue, pull request, and fork is tracked in the
+              <a href="./guides/upstream.md">upstream review</a>.
+            </p>
           </div>
           <dl class="proof-list">
-            <div><dt>5,000</dt><dd>deterministic differential cases against deepmerge 4.3.1</dd></div>
-            <div><dt>100%</dt><dd>statement, line, and function coverage at release</dd></div>
+            <div><dt>900,000</dt><dd>full-graph comparisons against deepmerge 4.3.1 without a difference</dd></div>
+            <div><dt>115</dt><dd>assertions from deepmerge's own test suite, passing</dd></div>
             <div><dt>3.9-7.0</dt><dd>TypeScript compatibility matrix</dd></div>
             <div><dt>0</dt><dd>runtime dependencies</dd></div>
           </dl>
@@ -226,6 +285,8 @@ const config = merge(defaults, environment);</code></pre>
       <nav aria-label="Footer navigation">
         <a href="https://alexandro.net/docs/open-source/">All packages</a>
         <a href="./guides/adoption.md">Adoption</a>
+        <a href="./guides/compatibility.md">Compatibility</a>
+        <a href="./guides/upstream.md">Upstream review</a>
         <a href="./guides/benchmarks.md">Benchmarks</a>
         <a href="https://github.com/alexandroit/stackline-deepmerge/blob/main/SECURITY.md">Security</a>
         <a href="https://github.com/alexandroit/stackline-deepmerge/blob/main/CHANGELOG.md">Changelog</a>

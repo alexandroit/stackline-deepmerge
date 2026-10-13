@@ -112,8 +112,9 @@ textarea {
 .site-header nav,
 footer nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 22px;
+  gap: 10px 22px;
 }
 
 .site-header nav a,
@@ -306,7 +307,7 @@ h3 {
 
 .control-bar {
   display: grid;
-  grid-template-columns: minmax(190px, 1.25fr) minmax(170px, auto) 116px 130px auto;
+  grid-template-columns: minmax(170px, 1.2fr) minmax(170px, auto) minmax(150px, auto) minmax(170px, 1fr) 104px 112px auto;
   gap: 12px;
   align-items: end;
   margin-bottom: 14px;
@@ -635,7 +636,7 @@ a:focus-visible {
   }
 
   .control-bar {
-    grid-template-columns: minmax(180px, 1fr) minmax(170px, 1fr) 116px 130px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .control-bar .primary-button {
@@ -772,6 +773,8 @@ a:focus-visible {
 
   .install-row code {
     font-size: 11px;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .tool-heading {

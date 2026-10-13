@@ -1,15 +1,19 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import merge, { DeepMergeLimitError } from '../src/index.js';
+import merge, { DeepMergeLimitError, strict } from '../src/index.js';
 
-test('preserves object self references', () => {
+test('preserves object self references when merging into an empty object', () => {
   const source = { name: 'source' };
   source.self = source;
 
   const result = merge({}, source);
   assert.equal(result.name, 'source');
   assert.equal(result.self, result);
+  assert.notEqual(result, source);
+
+  const combined = merge.all([source]);
+  assert.equal(combined.self, combined);
 });
 
 test('merges two cyclic roots into one stable cycle', () => {
@@ -35,15 +39,60 @@ test('preserves array self references', () => {
   assert.equal(result[1], result);
 });
 
-test('preserves mutual cycles and shared references', () => {
+test('copies a cyclic target branch into a closed cycle', () => {
+  const target = { name: 'target' };
+  target.self = target;
+
+  const result = merge(target, { extra: true });
+  assert.equal(result.extra, true);
+  assert.equal(result.self.name, 'target');
+  assert.equal(result.self.self, result.self);
+  assert.notEqual(result.self, target);
+});
+
+test('preserves mutual cycles while copying repeated references independently', () => {
   const first = { name: 'first' };
   const second = { name: 'second', first };
   first.second = second;
   const source = { first, again: first };
 
   const result = merge({}, source);
-  assert.equal(result.first, result.again);
   assert.equal(result.first.second.first, result.first);
+  assert.equal(result.again.second.first, result.again);
+  assert.notEqual(result.first, result.again);
+  assert.notEqual(result.first, first);
+});
+
+test('never reuses a merged branch for a later copy of the same input object', () => {
+  const shared = { left: true };
+  const result = merge({ branch: shared }, { branch: { right: true }, copy: shared });
+  assert.deepEqual(result, {
+    branch: { left: true, right: true },
+    copy: { left: true }
+  });
+});
+
+test('preserves cycles inside custom array hooks and nested clones', () => {
+  const source = { list: [] };
+  source.list.push(source);
+  const result = merge({}, source, {
+    arrayMerge: (_target, list, options) =>
+      list.map((value) => options.cloneUnlessOtherwiseSpecified(value, options))
+  });
+  assert.equal(result.list[0].list[0], result.list[0]);
+});
+
+test('has no depth or key limit by default, like deepmerge 4.3.1', () => {
+  let source = { leaf: true };
+  for (let depth = 0; depth < 1200; depth += 1) source = { next: source };
+
+  let result = merge({}, source);
+  for (let depth = 0; depth < 1200; depth += 1) result = result.next;
+  assert.deepEqual(result, { leaf: true });
+
+  const wide = {};
+  for (let index = 0; index < 120000; index += 1) wide[`key${index}`] = index;
+  assert.equal(Object.keys(merge({}, wide)).length, 120000);
 });
 
 test('enforces maxDepth with a structured error', () => {
@@ -61,12 +110,12 @@ test('enforces maxDepth with a structured error', () => {
   );
 });
 
-test('rejects extremely deep input with a controlled error before stack overflow', () => {
+test('strict mode rejects extremely deep input before stack overflow', () => {
   let source = { leaf: true };
   for (let depth = 0; depth < 2500; depth += 1) source = { next: source };
 
   assert.throws(
-    () => merge({}, source),
+    () => strict({}, source),
     (error) => {
       assert.equal(error instanceof DeepMergeLimitError, true);
       assert.equal(error.kind, 'depth');
@@ -90,6 +139,27 @@ test('enforces maxKeys across the full merge', () => {
   );
 });
 
+test('applies limits to arrays, custom hooks, and collections', () => {
+  assert.throws(
+    () => merge({}, { list: [[[1]]] }, { maxDepth: 2 }),
+    (error) => error instanceof DeepMergeLimitError && error.path === '<root>.list[0][0]'
+  );
+  assert.throws(
+    () =>
+      merge({}, { list: [{ deep: { deeper: true } }] }, {
+        maxDepth: 2,
+        arrayMerge: (_target, list, options) =>
+          list.map((value) => options.cloneUnlessOtherwiseSpecified(value, options))
+      }),
+    DeepMergeLimitError
+  );
+  assert.throws(
+    () =>
+      merge({}, { map: new Map([['a', 1], ['b', 2]]) }, { mergeCollections: true, maxKeys: 2 }),
+    (error) => error.kind === 'key'
+  );
+});
+
 test('allows explicit infinite limits', () => {
   assert.deepEqual(
     merge({ one: 1 }, { nested: { two: 2 } }, { maxDepth: Infinity, maxKeys: Infinity }),
@@ -97,7 +167,7 @@ test('allows explicit infinite limits', () => {
   );
 });
 
-test('formats array, symbol, and non-identifier paths in limit errors', () => {
+test('formats array, symbol, map-key, and non-identifier paths in limit errors', () => {
   assert.throws(
     () => merge({}, { list: [{ nested: { value: true } }] }, { maxDepth: 2 }),
     (error) => {
@@ -121,5 +191,20 @@ test('formats array, symbol, and non-identifier paths in limit errors', () => {
       assert.match(error.path, /\["feature-flags"\]\.nested/);
       return true;
     }
+  );
+
+  const objectKey = {};
+  const map = new Map([
+    [objectKey, { deep: { value: 1 } }],
+    [true, { deep: { value: 2 } }]
+  ]);
+  assert.throws(
+    () => merge({}, { map }, { maxDepth: 2, mergeCollections: true }),
+    (error) => error.path === '<root>.map[object].deep'
+  );
+  map.delete(objectKey);
+  assert.throws(
+    () => merge({}, { map }, { maxDepth: 2, mergeCollections: true }),
+    (error) => error.path === '<root>.map[true].deep'
   );
 });

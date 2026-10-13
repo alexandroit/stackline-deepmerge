@@ -1,6 +1,8 @@
 # @stackline/deepmerge full reference
 
 Package: @stackline/deepmerge
+Version: {{PACKAGE_VERSION}}
+Replaces: deepmerge 4.x
 License: MIT
 Runtime dependencies: 0
 Node.js: 14.17+
@@ -10,56 +12,85 @@ Security guide: https://alexandro.net/docs/open-source/guides/deepmerge-security
 
 ## Installation
 
-npm install @stackline/deepmerge
-
-To preserve existing imports:
+To keep existing deepmerge imports:
 
 npm install deepmerge@npm:@stackline/deepmerge
+
+Direct install:
+
+npm install @stackline/deepmerge
 
 ## ESM
 
 import merge from '@stackline/deepmerge';
 const result = merge(target, source, options);
 
-Named exports: deepmerge, all, isMergeableObject, UnsafeKeyError,
-DeepMergeLimitError.
+Named exports: deepmerge, all, strict, strictOptions, createDeepmerge,
+isMergeableObject, isPlainMergeableObject, overwriteArrays,
+mergeArraysByIndex, mergeArraysByKey, concatUniqueArrays, UnsafeKeyError,
+DeepMergeLimitError. Each is also a static property of the default export.
 
 ## CommonJS
 
 const merge = require('@stackline/deepmerge');
 const result = merge(target, source, options);
+merge.all([a, b, c]);
+merge.strict(defaults, input);
 
-Static helpers are available as merge.all, merge.isMergeableObject,
-merge.UnsafeKeyError, and merge.DeepMergeLimitError.
-
-## Options
+## deepmerge 4 options
 
 - arrayMerge(targetArray, sourceArray, options): customize arrays.
-- clone: true by default; false preserves nested references.
-- customMerge(key, options): select a property-specific merge callback.
+- clone: true by default; false keeps nested input references.
+- customMerge(key, options, context): return a merge function for a property.
+  Called only when the key exists in the target and the source value is
+  mergeable. context is { path, target, source } for that property.
 - isMergeableObject(value): select traversable values.
-- onUnsafeKey: "skip" by default or "throw".
-- maxDepth: 1000 by default.
-- maxKeys: 100000 by default.
+- Falsy options and hooks fall back to the defaults.
+
+## Opt-in options
+
+- unsafeKeys: "compatible" (default) drops __proto__; "strict" also drops
+  constructor and prototype at every depth.
+- onUnsafeKey: "skip" (default) or "throw". Setting it selects the strict key
+  policy unless unsafeKeys is given.
+- maxDepth, maxKeys: unlimited by default.
+- skipUndefined: undefined source values do not replace target values.
+- mergeCollections: deep merge Map entries and union Set values.
+- customMergeScope: "objects" (default) or "all" to include primitive values.
+
+## Exports beyond deepmerge 4
+
+- strict(target, source, options?): unsafeKeys "strict", onUnsafeKey "throw",
+  maxDepth 1000, maxKeys 100000. strict.all is available.
+- createDeepmerge(defaults): configured merge function with .all.
+- isPlainMergeableObject(value): true for arrays and plain objects only.
+- overwriteArrays, mergeArraysByIndex, concatUniqueArrays: arrayMerge hooks.
+- mergeArraysByKey(selector): arrayMerge hook that deep merges items sharing a
+  property value or a function result.
 
 ## Security
 
-The keys __proto__, prototype, and constructor are filtered in source and
-target objects before values are read. Accepted keys are written as own data
-properties. Own enumerable string and symbol keys are processed; inherited and
-non-enumerable keys are not copied. Options callbacks are trusted executable
-code and must not come from untrusted input.
+__proto__ is dropped from target and source objects at every depth before its
+value is read, so CVE-2026-93753 (deepmerge >= 4.2.0, <= 4.3.1) does not apply.
+A source key that exists on the target only through its prototype chain is
+skipped, as in deepmerge 4. Accepted keys are written as own data properties.
+Options callbacks are trusted executable code and must not come from untrusted
+input.
 
 ## Compatibility
 
-The default behavior targets documented deepmerge 4.3.1 semantics. The suite
-includes 5,000 deterministic differential cases. Intentional differences are
-unsafe-key handling, cycle preservation, traversal limits, early option
-validation, and modern package exports.
+Without options, results match deepmerge 4.3.1 exactly. The test suite
+compares complete output graphs on a mixed-type corpus with ten option
+variants, and deepmerge's own 4.3.1 test suite passes against this package.
+Differences exist only where deepmerge 4 crashes or returns an unsafe result:
+__proto__ handling, circular references, frozen options, React 19 elements,
+and options mutation.
 
 ## Canonical links
 
 Documentation: https://alexandro.net/docs/vanilla/deepmerge/
+Compatibility: https://alexandro.net/docs/vanilla/deepmerge/guides/compatibility.md
+Upstream review: https://alexandro.net/docs/vanilla/deepmerge/guides/upstream.md
 npm: https://www.npmjs.com/package/@stackline/deepmerge
 Repository: https://github.com/alexandroit/stackline-deepmerge
 Security: https://github.com/alexandroit/stackline-deepmerge/security/policy

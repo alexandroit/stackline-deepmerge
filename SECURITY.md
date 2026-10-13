@@ -26,20 +26,36 @@ We aim to acknowledge complete reports within three business days. Confirmed
 issues are fixed privately, covered by regression tests, and disclosed after a
 patched release is available.
 
+## Upstream advisories
+
+[CVE-2026-93753](https://www.cve.org/CVERecord?id=CVE-2026-93753) affects
+`deepmerge` `>= 4.2.0, <= 4.3.1`: a `__proto__` key merged into a
+null-prototype object, a `null` or primitive placeholder, or a target with its
+own `__proto__` key replaces the prototype of the merged result. No release of
+`@stackline/deepmerge` is affected. The regression suite runs every published
+attack variant against both packages.
+
 ## Security contract
 
 The default merge path:
 
-- rejects `__proto__`, `prototype`, and `constructor` at every object depth;
-- checks both target and source keys;
-- does not read values behind rejected unsafe keys;
+- drops `__proto__` from targets and sources at every depth;
+- skips a source key that exists on the target only through its prototype
+  chain or as a non-enumerable property, like deepmerge 4;
+- does not read values behind rejected keys;
 - copies only own enumerable string and symbol keys;
-- writes accepted keys as data properties;
-- bounds depth and enumerable key traversal;
-- tracks circular and shared references.
+- writes accepted keys as own data properties, never through setters;
+- never mutates its inputs or the options object;
+- reproduces circular references instead of overflowing the stack.
 
-Use `{ onUnsafeKey: 'throw' }` when an unsafe key must reject the entire
-operation instead of being filtered.
+The `strict` export, or the matching options, also:
+
+- drops `constructor` and `prototype` at every depth (`unsafeKeys: 'strict'`);
+- rejects the whole operation on any of those keys
+  (`onUnsafeKey: 'throw'`);
+- bounds depth and key traversal (`maxDepth`, `maxKeys`).
+
+Use the strict mode at boundaries that merge untrusted input.
 
 ## Trust boundary
 

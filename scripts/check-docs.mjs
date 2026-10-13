@@ -10,6 +10,9 @@ const robots = await readFile(new URL('robots.txt', site), 'utf8');
 const llms = await readFile(new URL('llms.txt', site), 'utf8');
 const adoption = await readFile(new URL('guides/adoption.md', site), 'utf8');
 const benchmark = await readFile(new URL('guides/benchmarks.md', site), 'utf8');
+const compatibility = await readFile(new URL('guides/compatibility.md', site), 'utf8');
+const upstream = await readFile(new URL('guides/upstream.md', site), 'utf8');
+const llmsFull = await readFile(new URL('llms-full.txt', site), 'utf8');
 const example = await readFile(new URL('examples/secure-config.mjs', site), 'utf8');
 const image = await stat(new URL('assets/deepmerge-structure.jpg', site));
 const bundle = await stat(new URL('index.min.js', site));
@@ -30,11 +33,17 @@ assert(robots.includes('User-agent: *\nAllow: /'), 'documentation robots policy 
 assert(llms.includes('npm install @stackline/deepmerge'), 'LLM install reference is missing');
 assert(adoption.includes('deepmerge@npm:@stackline/deepmerge'), 'alias guide is missing');
 assert(benchmark.includes('BENCHMARK_ITERATIONS'), 'benchmark methodology is missing');
+assert(compatibility.includes('Intentional differences'), 'compatibility guide is missing');
+assert(upstream.includes('CVE-2026-93753'), 'upstream review is missing');
+assert(app.includes('unsafeKeys: policy'), 'key policy is not wired to the playground');
+assert(html.includes('./guides/upstream.md'), 'upstream review link is missing');
+assert(!html.includes('{{PACKAGE_VERSION}}'), 'documentation version placeholder was not replaced');
+assert(llmsFull.includes(`Version: ${packageJson.version}`), 'LLM reference version is stale');
 assert(example.includes("from '@stackline/deepmerge'"), 'executable example is missing');
 assert(html.includes('./analytics.js'), 'documentation analytics is missing');
 assert(!app.includes("gtag('event'"), 'playground must not record user input');
 assert(image.size < 150000, `documentation image is ${image.size} bytes`);
-assert(bundle.size < 10000, `browser bundle is ${bundle.size} bytes`);
+assert(bundle.size < 12000, `browser bundle is ${bundle.size} bytes`);
 
 console.log(
   JSON.stringify({

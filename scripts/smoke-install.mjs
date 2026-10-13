@@ -75,6 +75,14 @@ assert.strictEqual(merge.default, merge);
 assert.deepStrictEqual(result.nested, { left: true, right: true });
 assert.deepStrictEqual(result.payload, { safe: true });
 assert.strictEqual(Object.prototype.polluted, undefined);
+const poisoned = merge({ session: null }, JSON.parse('{"session":{"__proto__":{"isAdmin":true}}}'));
+assert.strictEqual(poisoned.session.isAdmin, undefined);
+assert.deepStrictEqual(Object.keys(merge({ a: 1, b: 2 }, { a: 3 })), ['a', 'b']);
+assert.throws(() => merge.strict({}, JSON.parse('{"prototype":{}}')), merge.UnsafeKeyError);
+const byName = merge.createDeepmerge({ arrayMerge: merge.mergeArraysByKey('name') });
+assert.deepStrictEqual(byName({ list: [{ name: 'a', x: 1 }] }, { list: [{ name: 'a', y: 2 }] }), {
+  list: [{ name: 'a', x: 1, y: 2 }]
+});
 `,
     'utf8'
   );
@@ -82,8 +90,9 @@ assert.strictEqual(Object.prototype.polluted, undefined);
   await writeFile(
     path.join(directory, 'smoke.mjs'),
     `import assert from 'assert';
-import merge, { all, deepmerge } from '@stackline/deepmerge';
+import merge, { all, deepmerge, strict } from '@stackline/deepmerge';
 assert.strictEqual(merge, deepmerge);
+assert.strictEqual(merge.strict, strict);
 assert.deepStrictEqual(all([{ esm: true }, { installed: true }]), { esm: true, installed: true });
 `,
     'utf8'
