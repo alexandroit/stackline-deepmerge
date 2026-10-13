@@ -170,3 +170,32 @@ Validation:
   deepmerge 4.3.1; 1.1.0 measured about 200,000 against about 150,000.
 - TypeScript 3.9.10, 4.7.4, 4.9.5, 5.9.3, 6.0.3, and 7.0.2 compile consumer
   code that uses both the upstream declaration patterns and the new API.
+
+Release status:
+
+- Source commit `d87de3d06ef427d45e5e45fa13f61dc677d27c55`, annotated tag
+  `v1.1.0`. CI run `38433103190` passed on that commit: tests and coverage,
+  the upstream deepmerge suite, TypeScript 3.9 through 7.0, Node.js 14.17
+  through 24 on Linux plus Node.js 20 on Windows and macOS, Deno, Bun, and the
+  reproducible package job. CodeQL run `38433103181` ran on the same commit.
+- The CI package artifact, the local release build, and the publish workflow
+  artifact are byte-identical. SHA-512:
+  `6c44351295eb96ef4f4d380a0fdcfce4c5981a30ccbfbf5f176aa7d8b61d9ae929ba3ea89e49f991995102ed0f699bd4bfd6507abc2d0d5808127d8b62db04ef`.
+  npm integrity:
+  `sha512-bEQ1EpXrlu9PTTgKD9z85MWYGjDMv79fF2qn2LYdmukpuj6onkn5kZlRAu0PaZvUv9ZQerwtDVgIEn2LYtsE7w==`.
+- The same tarball was published to Verdaccio first, then to public npm by
+  publish run `38433471277` (workflow dispatch by the owner's account) with
+  SLSA provenance. `1.1.0` is `latest`; the registry tarball is
+  byte-identical to the reviewed artifact and the registry README is the
+  1.1.0 README.
+- Clean installs from Verdaccio and public npm passed direct CommonJS and
+  ESM, the `deepmerge` npm alias, and TypeScript 5.9 `Node16` resolution of
+  `merge.all` on the default import. `npm audit signatures` verified the
+  installed package.
+- The retained release directory
+  `/storage/data/releases/stackline-deepmerge/1.1.0` contains the tarball,
+  `SHA512SUMS`, and the CI CycloneDX SBOM. The GitHub release `v1.1.0` carries
+  the same three assets.
+- Package documentation on `https://alexandro.net/docs/vanilla/deepmerge/` and
+  the catalog download snapshot still show 1.0.4 until the next documentation
+  deployment.
