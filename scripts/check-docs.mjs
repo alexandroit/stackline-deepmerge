@@ -26,7 +26,11 @@ assert(
 );
 assert(html.includes('SoftwareSourceCode'), 'structured software metadata is missing');
 assert(html.includes('index,follow'), 'indexable robots metadata is missing');
-assert(html.includes('./index.min.js'), 'production package bundle is not loaded');
+assert(
+  html.includes(`./index.min.js?v=${packageJson.version}`),
+  'production package bundle is not loaded with a versioned URL'
+);
+assert(html.includes(`./app.js?v=${packageJson.version}`), 'playground script URL is not versioned');
 assert(app.includes('globalThis.StacklineDeepmerge'), 'playground does not use package bundle');
 assert(app.includes("onUnsafeKey: mode"), 'unsafe-key mode is not wired to the playground');
 assert(robots.includes('User-agent: *\nAllow: /'), 'documentation robots policy is not open');
