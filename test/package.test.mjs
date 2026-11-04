@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import { readFile, stat } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
+import legacyMerge from 'deepmerge';
 
 import esmDefault, * as esm from '../dist/index.js';
 
@@ -52,4 +53,22 @@ test('distribution is small and carries the license banner', async () => {
   assert.equal(code.includes('eval('), false);
   assert.equal(code.includes('new Function'), false);
   assert.ok(info.size < 12000, `browser bundle is ${info.size} bytes`);
+});
+
+test('all shipped runtime formats reject prototype poisoning accepted by the upstream oracle', async () => {
+  const context = { globalThis: {} };
+  vm.runInNewContext(await readFile(new URL('../dist/index.min.js', import.meta.url), 'utf8'), context);
+  const attacks = [
+    run => run(Object.create(null), JSON.parse('{"__proto__":{"isAdmin":true}}')),
+    run => run(JSON.parse('{"__proto__":{"isAdmin":true}}'), {})
+  ];
+  for (const attack of attacks) {
+    assert.equal(attack(legacyMerge).isAdmin, true, 'The frozen oracle must remain vulnerable');
+    for (const run of [esmDefault, require('../dist/index.cjs'), context.globalThis.StacklineDeepmerge]) {
+      const result = attack(run);
+      assert.equal(result.isAdmin, undefined);
+      assert.equal(Object.prototype.hasOwnProperty.call(result, '__proto__'), false);
+    }
+  }
+  assert.equal({}.isAdmin, undefined);
 });

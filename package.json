@@ -94,11 +94,12 @@
     "test:docs": "npm run docs:build && node scripts/check-docs.mjs",
     "test:attw": "attw --pack .",
     "test:upstream": "npm run build && node scripts/test-upstream.mjs",
-    "audit:dependencies": "npm audit --audit-level=low && npm audit signatures",
+    "audit:dependencies": "node --test scripts/audit-source.test.mjs && node scripts/audit-source.mjs && npm audit signatures",
     "benchmark": "npm run build && node benchmark/benchmark.mjs",
     "docs:build": "npm run build && node scripts/build-docs.mjs",
     "docs:serve": "node scripts/serve-docs.mjs",
-    "prepack": "npm run clean && npm run build && npm run lint && npm run test:coverage && npm run test:types && npm run test:package"
+    "prepack": "npm run clean && npm run build && npm run lint && npm run test:coverage && npm run test:types && npm run test:package",
+    "audit:raw": "npm audit --audit-level=low"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",

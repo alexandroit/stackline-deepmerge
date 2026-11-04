@@ -1,4 +1,5 @@
-import { cp, mkdir, readFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { build } from 'esbuild';
 
 const root = new URL('../', import.meta.url);
@@ -14,11 +15,12 @@ const shared = {
   entryPoints: [new URL('src/index.js', root).pathname],
   legalComments: 'none',
   logLevel: 'warning',
+  metafile: true,
   sourcemap: true,
   target: ['es2018']
 };
 
-await Promise.all([
+const builds = await Promise.all([
   build({
     ...shared,
     format: 'esm',
@@ -51,6 +53,18 @@ await Promise.all([
     platform: 'browser'
   })
 ]);
+
+const runtimeEvidence = {};
+for (const [index, filename] of ['index.js', 'index.cjs', 'index.min.js'].entries()) {
+  runtimeEvidence[filename] = {
+    inputs: Object.keys(builds[index].metafile.inputs).sort(),
+    imports: Object.values(builds[index].metafile.outputs).flatMap(output => output.imports),
+    sha256: createHash('sha256').update(await readFile(new URL(filename, dist))).digest('hex')
+  };
+}
+await mkdir(new URL('build-evidence/', root), { recursive: true });
+await writeFile(new URL('build-evidence/runtime-inputs.json', root),
+  JSON.stringify(runtimeEvidence, null, 2) + '\n');
 
 await Promise.all([
   cp(new URL('types/index.d.ts', root), new URL('index.d.ts', dist)),

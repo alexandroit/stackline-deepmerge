@@ -42,9 +42,26 @@ The differential and security tests use it as an oracle and prove that each
 CVE-2026-93753 payload affects the upstream result but not this package.
 It is not a runtime dependency or part of the published code. Run these tests
 only with reviewed repository fixtures, never with external configuration.
-The full dependency audit continues to report this real upstream advisory and
-remains a failing release gate; no suppression or package-identity alias is
-applied to the oracle. Consumer installations have no runtime dependencies.
+`npm run audit:raw` continues to report one real LOW advisory and exits with
+failure. The release gate uses a narrowly reviewed fixture exception expiring
+on **2026-12-04**; this is not a claim of zero development vulnerabilities.
+Consumer installations have no runtime dependencies.
+
+`npm run audit:dependencies` accepts only GHSA-gcqx-w48m-w2h4 with its reviewed
+LOW severity and affected range. It requires the exact `deepmerge@4.3.1`
+registry URL and SHA-512 integrity, a development-only lockfile node referenced
+only by the root development manifest, and zero production findings. No alias
+may replace the upstream oracle. Any extra advisory, dependent, path, changed
+fixture, or expired exception fails the gate.
+
+The build records inputs and SHA-256 digests for every CJS, ESM, and browser
+bundle. The gate verifies those digests, allows only this package's source
+inputs with no external imports, and checks that packing excludes fixtures,
+tests, dependencies, and build tooling. Source and all three built runtime
+formats must reject the prototype-poisoning cases that still succeed against
+the upstream fixture. Negative policy tests and registry signature checks are
+part of the same gate. Review the exception again before its expiry or any
+change to the oracle, advisory, dependency graph, or build boundaries.
 
 ## Security contract
 

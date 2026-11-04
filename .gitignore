@@ -1,5 +1,6 @@
 node_modules/
 coverage/
+build-evidence/
 dist/
 site-dist/
 *.tgz

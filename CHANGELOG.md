@@ -6,7 +6,8 @@ Versioning.
 ## [1.1.1] - 2026-11-04
 
 - Refresh development dependency resolutions and supported Node.js security pins.
-- Preserve deepmerge 4.3.1 as the intentional differential and vulnerability test oracle; its development-only advisory remains visible in the full audit and blocks release.
+- Preserve deepmerge 4.3.1 as the intentional differential and vulnerability test oracle. Its real LOW advisory remains visible in the raw audit; a fixture-only release policy expires on 2026-12-04 and rejects changed advisory, dependency, integrity, or bundle boundaries.
+- Verify CVE-2026-93753 protection in the CJS, ESM, and browser artifacts, in addition to the existing source regressions. Runtime behavior is unchanged from 1.1.0.
 
 ## [1.1.0] - 2026-10-13
 
