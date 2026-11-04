@@ -1,0 +1,41 @@
+name: Sync npm GitHub Release
+'on':
+  workflow_run:
+    workflows:
+    - Publish to npm
+    types:
+    - completed
+  workflow_dispatch:
+    inputs:
+      publication_run_id:
+        description: Successful original publish.yml run to verify and attach
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: github-release-sync
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        persist-credentials: false
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+      with:
+        node-version: 24.22.2
+        package-manager-cache: false
+    - name: Test release identity validation
+      run: node --test .github/scripts/github-release-sync.test.mjs
+    - name: Verify the published package and synchronize its GitHub release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PUBLICATION_RUN_ID: ${{ inputs.publication_run_id || github.event.workflow_run.id }}
+        PACKAGE_NAME: '@stackline/deepmerge'
+        RELEASE_TAG_PREFIX: v
+      run: node .github/scripts/github-release-sync.mjs
