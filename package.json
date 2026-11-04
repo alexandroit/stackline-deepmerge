@@ -1,6 +1,6 @@
 {
   "name": "@stackline/deepmerge",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Drop-in replacement for deepmerge 4 with CVE-2026-93753 fixed, cycle support, opt-in hardening, Map and Set merging, and array strategies. Zero dependencies; ESM, CommonJS, TypeScript, and browsers",
   "keywords": [
     "stackline",
@@ -108,5 +108,9 @@
     "eslint": "10.8.1",
     "publint": "0.3.24",
     "typescript": "7.0.2"
+  },
+  "overrides": {
+    "glob@>=9 <14.0.3": "14.0.3",
+    "minimatch@>=7 <11.0.4": "11.0.4"
   }
 }

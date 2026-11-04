@@ -35,6 +35,17 @@ own `__proto__` key replaces the prototype of the merged result. No release of
 `@stackline/deepmerge` is affected. The regression suite runs every published
 attack variant against both packages.
 
+## Development test baseline
+
+The development-only `deepmerge@4.3.1` dependency is deliberately vulnerable.
+The differential and security tests use it as an oracle and prove that each
+CVE-2026-93753 payload affects the upstream result but not this package.
+It is not a runtime dependency or part of the published code. Run these tests
+only with reviewed repository fixtures, never with external configuration.
+The full dependency audit continues to report this real upstream advisory and
+remains a failing release gate; no suppression or package-identity alias is
+applied to the oracle. Consumer installations have no runtime dependencies.
+
 ## Security contract
 
 The default merge path:

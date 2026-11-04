@@ -3,6 +3,11 @@
 All notable changes are documented here. This project follows Semantic
 Versioning.
 
+## [1.1.1] - 2026-11-04
+
+- Refresh development dependency resolutions and supported Node.js security pins.
+- Preserve deepmerge 4.3.1 as the intentional differential and vulnerability test oracle; its development-only advisory remains visible in the full audit and blocks release.
+
 ## [1.1.0] - 2026-10-13
 
 This release makes the default behavior match `deepmerge@4.3.1` exactly for
