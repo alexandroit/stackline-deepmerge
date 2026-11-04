@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2 - 2026-11-04
+
+- Correct the current package version and installation examples in the published README.
+- Reject stale README version claims in the packed artifact before npm publication.
+
 All notable changes are documented here. This project follows Semantic
 Versioning.
 

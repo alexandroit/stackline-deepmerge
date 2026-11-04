@@ -10,7 +10,7 @@
 
 **[Documentation](https://alexandro.net/docs/vanilla/deepmerge/)** | **[npm](https://www.npmjs.com/package/@stackline/deepmerge)** | **[Issues](https://github.com/alexandroit/stackline-deepmerge/issues)** | **[Repository](https://github.com/alexandroit/stackline-deepmerge)**
 
-**Current package version:** `1.1.0`
+**Current package version:** `1.1.2`
 
 ---
 
@@ -59,7 +59,7 @@ circular references, and dozens of community requests remain open.
 
 | Item | Value |
 | --- | --- |
-| Package | `@stackline/deepmerge@1.1.0` |
+| Package | `@stackline/deepmerge@1.1.2` |
 | Replaces | `deepmerge@4.x` |
 | Node.js runtime | `>=14.17.0` |
 | CommonJS / primary entry | `./dist/index.cjs` |
